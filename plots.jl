@@ -1,8 +1,9 @@
 using GLMakie
 using LaTeXStrings
 
-include(joinpath(@__DIR__, "wave_function.jl"))
 
+include(joinpath(@__DIR__, "wave_function.jl"))
+include(joinpath(@__DIR__, "isosurface.jl"))
 
 """
     plot_legendre(l; num_points=150)
@@ -178,4 +179,54 @@ function plot_generalized_laguerre(n::Integer, α::Union{Num,Number}; num_points
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$n}^{%$α}(x)", title=L"Generalized Laguerre Polynomial $P_{%$n}^{%$α}(x)$")
     lines!(ax, x, P, color=:blue, linewidth=2)
     fig
+end
+
+
+function plot_orbital(
+    n::Integer,
+    l::Integer,
+    m::Integer;
+    extent::Float64=15.0,
+    step::Float64=0.15,
+    level::Float64=0.1
+)
+
+    function density(x, y, z)
+
+        r̃ = sqrt(x^2 + y^2 + z^2)
+
+        if r̃ == 0
+            θ = 0.0
+            φ = 0.0
+        else
+            θ = acos(clamp(z / r̃, -1.0, 1.0))
+            φ = atan(y, x)
+        end
+
+        r = α₀ * r̃
+
+        ψ = wave_function(n, l, m, r, θ, φ)
+
+        return abs2(ψ)
+    end
+
+    ξ = (-extent):step:extent
+
+    ρmax = maximum(
+        density(x, y, z)
+        for x in ξ, y in ξ, z in ξ
+    )
+
+    isoval = level * ρmax
+
+    fig = Figure(size=(900, 900))
+
+    show_isosurface(
+        fig[1, 1],
+        density,
+        ξ;
+        isoval=isoval
+    )
+
+    return fig
 end

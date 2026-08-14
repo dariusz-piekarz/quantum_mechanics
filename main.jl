@@ -8,5 +8,6 @@ include(joinpath(@__DIR__, "plots.jl"))
 #plot_spherical_harmonic(5, 2, draw=:real)
 #plot_legendre(5)
 #plot_associated_legendre(5, 3)
+plot_orbital(3, 2, 2)
 
 
