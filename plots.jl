@@ -1,6 +1,7 @@
 using GLMakie
 using LaTeXStrings
 
+include(joinpath(@__DIR__, "laguerre.jl"))
 include(joinpath(@__DIR__, "spherical_harmonics.jl"))
 
 
@@ -155,5 +156,27 @@ function plot_spherical_harmonic(
         colorrange=(-maxval, maxval)
     )
 
+    fig
+end
+
+
+function plot_laguerre(n::Integer; num_points::Integer=150)
+    x = range(-1, 1, length=num_points)
+    P = laguerre.(n, x)
+
+    fig = Figure(size=(900, 800))
+    ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$n}(x)", title=L"Laguerre Polynomial $P_{%$n}(x)$")
+    lines!(ax, x, P, color=:blue, linewidth=2)
+    fig
+end
+
+
+function plot_generalized_laguerre(n::Integer, α::Union{Num,Number}; num_points::Integer=150)
+    x = range(-1, 1, length=num_points)
+    P = generalized_lagguerre.(n, α, x)
+
+    fig = Figure(size=(900, 800))
+    ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$n}^{%$α}(x)", title=L"Generalized Laguerre Polynomial $P_{%$n}^{%$α}(x)$")
+    lines!(ax, x, P, color=:blue, linewidth=2)
     fig
 end
