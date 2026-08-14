@@ -26,30 +26,3 @@ function factorials(n::Integer)::Vector{Int}
     return facts
 
 end
-
-
-# ============================================================
-# Fibonacci numbers
-# ============================================================
-
-
-"""
-Return the n-th Fibonacci number as a BigInt.
-
-Arguments:
-- n: non-negative integer index in the Fibonacci sequence
-
-Returns:
-- the n-th Fibonacci number using 1-based indexing (fibonacci(0) == 1)
-"""
-function fibonacci(n::Int)::BigInt
-    if n == 0 || n == 1
-        return 1
-    end
-    arr = BigInt[1, 1]
-    for i = 2:n
-        push!(arr, arr[i] + arr[i-1])
-    end
-
-    return arr[end]
-end

@@ -57,5 +57,17 @@ function spherical_harmonic(
     φ::AbstractVector{<:Number},
 )
 
-    return [spherical_harmonic(l, m, θᵢ, φⱼ) for θᵢ in θ, φⱼ in φ]
+    m_abs = abs(m)
+
+    N_lm = sqrt(
+        (2l + 1) / (4π) *
+        factorial(l - m_abs) /
+        factorial(l + m_abs)
+    )
+
+    P = associated_legendre.(l, m, cos.(θ))
+
+    phase = exp.(im * m .* φ)
+
+    return N_lm .* P .* phase'
 end

@@ -1,8 +1,7 @@
 using GLMakie
 using LaTeXStrings
 
-include(joinpath(@__DIR__, "laguerre.jl"))
-include(joinpath(@__DIR__, "spherical_harmonics.jl"))
+include(joinpath(@__DIR__, "wave_function.jl"))
 
 
 """
