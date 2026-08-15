@@ -1,8 +1,8 @@
 include(joinpath(@__DIR__, "legendre.jl"))
-
+using Logging
 
 # ============================================================
-# Spherical harmonics Y_l^m(θ, φ)
+# Spherical harmonic Normalization const
 # ============================================================
 
 """
@@ -17,7 +17,11 @@ N_{lm} = sqrt((2l + 1) / (4π) * (l - |m|)! / (l + |m|)!).
 If `factorials` is provided, it must be a factorial table with convention
 `factorials[i+1] = i!`.
 """
-function N(l::Integer, m::Integer, factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing)
+function N(
+    l::Integer,
+    m::Integer,
+    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
+)::Number
 
     l < 0 && throw(ArgumentError("l must be non-negative"))
     abs(m) > l && throw(ArgumentError("|m| must be <= l"))
@@ -37,6 +41,9 @@ function N(l::Integer, m::Integer, factorials::Union{Nothing,AbstractVector{<:In
     return sqrt((2l + 1) / (4π) * l_m_mabs / l_p_m_abs)
 end
 
+# ============================================================
+# the azimuthal phase P
+# ============================================================
 
 """
     P(m, φ)
@@ -63,10 +70,19 @@ end
 
 Return the azimuthal phase factor `exp(i*m*φ)` for the value in `φ`.
 """
-function P(m::Integer, φ::Num)
+function P(m::Integer, φ::Num)::Num
     return exp(im * m * φ)
 end
 
+
+# Backward-compatible alias
+function P(m::Integer, φ)
+    return P(m, φ)
+end
+
+# ============================================================
+# Spherical harmonics Y_l^m(θ, φ)
+# ============================================================
 
 """
     spherical_harmonic(l, m, θ, φ)
@@ -88,6 +104,7 @@ function spherical_harmonic(
     φ::Number,
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
 )::Number
+
     l < 0 && throw(ArgumentError("l must be non-negative"))
     abs(m) > l && throw(ArgumentError("|m| must be <= l"))
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
@@ -118,7 +135,8 @@ function spherical_harmonic(
     θ::Num,
     φ::Num,
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
-)
+)::Num
+
     l < 0 && throw(ArgumentError("l must be non-negative"))
     abs(m) > l && throw(ArgumentError("|m| must be <= l"))
 
@@ -143,11 +161,20 @@ function spherical_harmonic(
     θ::AbstractArray{<:Number},
     φ::AbstractArray{<:Number},
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
-)
+)::AbstractArray{<:Number}
+
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
     N_lm = N(l, m, facts)
+
+    t1 = time()
     P_lm = associated_legendre(l, m, cos.(θ), facts)
+    t2 = time()
+    @info "Associated Legendre polynomials: $(t2-t1)."
+
+    t1 = time()
     phase = P(m, φ)
+    t2 = time()
+    @info "Phase calculations: $(t2-t1)."
 
     return N_lm .* P_lm .* phase
 end
@@ -160,13 +187,34 @@ function spherical_harmonic(
     φ::AbstractVector{<:Number},
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
 )::AbstractMatrix{<:Number}
+
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
     N_lm = N(l, m, facts)
+
+    t1 = time()
     P_lm = associated_legendre(l, m, cos.(θ), facts)
+    t2 = time()
+    @info "Associated Legendre polynomials: $(t2-t1)."
+
+    t1 = time()
     phase = P(m, φ)
+    t2 = time()
+    @info "Phase calculations: $(t2-t1)."
 
     P_lm_col = reshape(P_lm, :, 1)
     phase_row = reshape(phase, 1, :)
 
     return N_lm .* P_lm_col .* phase_row
+end
+
+
+# Backward-compatible alias
+function spherical_harmonic(
+    l::Integer,
+    m::Integer,
+    θ,
+    φ,
+    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing)
+
+    return spherical_harmonic(l, m, θ, φ, factorials)
 end

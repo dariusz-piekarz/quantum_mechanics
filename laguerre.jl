@@ -1,5 +1,8 @@
 using Symbolics
 
+# ============================================================
+# Laguerre polynomial L_n(x)
+# ============================================================
 
 """
     laguerre(n::Integer, x::Number)::Number
@@ -24,12 +27,26 @@ particularly in solutions of the hydrogen atom.
 laguerre(3, 1.5)  # Returns numerical value
 ```
 """
-function laguerre(n::Integer, x::Number, factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing)::Number
+function laguerre(n::Integer, x::Number)::Number
     n < 0 && throw(ArgumentError("n must be non-negative"))
 
-    fact = resolve_factorials(factorials, n)
-    polynomials = [(-1)^k * fact[n+1] / (fact[k+1]^2 * fact[n-k+1]) * x^k for k in 0:n]
-    return sum(polynomials)
+    L0 = one(eltype(x))
+
+    n == 0 && return L0
+
+    L1 = 1 - x
+
+    n == 1 && return L1
+
+    L_prev = L0
+    L_curr = L1
+
+    for k in 2:n
+        L_next = ((2k - 1 - x) * L_curr - (k - 1) * L_prev) / k
+        L_prev, L_curr = L_curr, L_next
+    end
+
+    return L_curr
 
 end
 
@@ -59,16 +76,39 @@ using Symbolics
 laguerre(2, x)  # Returns the 2nd degree Laguerre polynomial
 ```
 """
-function laguerre(n::Integer, x::Num, factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing)::Num
+function laguerre(n::Integer, x::Num)::Num
     n < 0 && throw(ArgumentError("n must be non-negative"))
 
-    fact = resolve_factorials(factorials, n)
-    polynomials = [(-1)^k * fact[n+1] / (fact[k+1]^2 * fact[n-k+1]) * x^k for k in 0:n]
+    L0 = one(eltype(x))
 
-    return simplify(expand(sum(polynomials)))
+    n == 0 && return L0
+
+    L1 = 1 - x
+
+    n == 1 && return L1
+
+    L_prev = L0
+    L_curr = L1
+
+    for k in 2:n
+        L_next = ((2k - 1 - x) * L_curr - (k - 1) * L_prev) / k
+        L_prev, L_curr = L_curr, L_next
+    end
+
+    return simplify(expand(result))
 
 end
 
+
+# Backward-compatible alias
+function lagguerre(n::Integer, x)
+    return generalized_laguerre(n, x)
+end
+
+
+# ============================================================
+# Generalized Laguerre polynomial L_n^(α)(x)
+# ============================================================
 
 """
     generalized_laguerre(n::Integer, α::Number, x::Number)::Number
@@ -94,31 +134,27 @@ by α. They reduce to standard Laguerre polynomials when α = 0.
 generalized_laguerre(1, 0.5, 2.0)  # Numerical evaluation with α = 0.5
 ```
 """
-function generalized_laguerre(
-    n::Integer,
-    α::Number,
-    x::Number;
-    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
-)::Number
-
+function generalized_laguerre(n::Integer, α::Number, x::Number)::Number
     n < 0 && throw(ArgumentError("n must be non-negative"))
-    if !(α isa Num) && α < -1
-        throw(ArgumentError("α must be >= -1"))
-    end
-    # L_n^α(x) = Σ(k=0 to n) [(-1)^k * Γ(n+α+1) / (Γ(α+k+1) * Γ(n-k+1) * k!)] * x^k
-    # Simplified: = Σ(k=0 to n) [(-1)^k / k! * prod((α+k+1):(α+n))] * x^k
-    fact = resolve_factorials(factorials, n)
-    polynomials = []
+    α < -1 && throw(ArgumentError("α must be >= -1"))
 
-    for k in 0:n
-        # Compute the rising product (α+k+1) * (α+k+2) * ... * (α+n)
-        prod_val = prod((α + j) for j in (k+1):n; init=1)
-        coeff = (-1)^k * prod_val / (fact[k+1] * fact[n-k+1])
-        push!(polynomials, coeff * x^k)
+    L0 = one(eltype(x))
+
+    n == 0 && return L0
+
+    L1 = 1 + α - x
+
+    n == 1 && return L1
+
+    L_prev = L0
+    L_curr = L1
+
+    for k in 2:n
+        L_next = ((2k - 1 + α - x) * L_curr - (k - 1 + α) * L_prev) / k
+        L_prev, L_curr = L_curr, L_next
     end
 
-    result = sum(polynomials)
-    return result
+    return L_curr
 end
 
 
@@ -148,46 +184,30 @@ using Symbolics
 generalized_laguerre(2, 0, x)  # Standard Laguerre polynomial
 ```
 """
-function generalized_laguerre(
-    n::Integer,
-    α::Union{Num,Number},
-    x::Num;
-    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
-)::Num
+function generalized_laguerre(n::Integer, α::Union{Num,Number}, x::Num)::Num
 
     n < 0 && throw(ArgumentError("n must be non-negative"))
     if ~(α isa Num) && α < -1
         throw(ArgumentError("α must be >= -1"))
     end
-    # L_n^α(x) = Σ(k=0 to n) [(-1)^k * Γ(n+α+1) / (Γ(α+k+1) * Γ(n-k+1) * k!)] * x^k
-    # Simplified: = Σ(k=0 to n) [(-1)^k / k! * prod((α+k+1):(α+n))] * x^k
-    fact = resolve_factorials(factorials, n)
 
-    polynomials = []
+    L0 = one(eltype(x))
 
-    for k in 0:n
-        # Compute the rising product (α+k+1) * (α+k+2) * ... * (α+n)
-        prod_val = 1
-        for j in (k+1):n
-            prod_val = prod_val * (α + j)
-        end
-        coeff = (-1)^k * prod_val / (fact[k+1] * fact[n-k+1])
-        push!(polynomials, coeff * x^k)
+    n == 0 && return L0
+
+    L1 = 1 + α - x
+
+    n == 1 && return L1
+
+    L_prev = L0
+    L_curr = L1
+
+    for k in 2:n
+        L_next = ((2k - 1 + α - x) * L_curr - (k - 1 + α) * L_prev) / k
+        L_prev, L_curr = L_curr, L_next
     end
 
-    result = sum(polynomials)
-
-    return simplify(expand(result))
-end
-
-# Backward-compatible alias
-function generalized_lagguerre(
-    n::Integer,
-    α,
-    x;
-    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
-)
-    return generalized_laguerre(n, α, x; factorials=factorials)
+    return simplify(expand(L_curr))
 end
 
 
@@ -199,11 +219,10 @@ Compute the generalized Laguerre polynomial `L_n^(α)(x)` on array inputs.
 function generalized_laguerre(
     n::Integer,
     α::Number,
-    x::AbstractArray{<:Number}=nothing
-)
+    x::AbstractArray{<:Number}
+)::AbstractArray{<:Number}
     n < 0 && throw(ArgumentError("n must be non-negative"))
-    !(α isa Num) && α < -1 && throw(ArgumentError("α must be >= -1"))
-    x === nothing && throw(ArgumentError("x must not be nothing"))
+    α < -1 && throw(ArgumentError("α must be >= -1"))
 
     L0 = ones(eltype(x), size(x))
 
@@ -217,13 +236,16 @@ function generalized_laguerre(
     L_curr = L1
 
     for k in 2:n
-        L_next = @. (
-            (2k - 1 + α - x) * L_curr -
-            (k - 1 + α) * L_prev
-        ) / k
-
+        L_next = @. ((2k - 1 + α - x) * L_curr - (k - 1 + α) * L_prev) / k
         L_prev, L_curr = L_curr, L_next
     end
 
     return L_curr
 end
+
+
+# Backward-compatible alias
+function generalized_lagguerre(n::Integer, α, x)
+    return generalized_laguerre(n, α, x)
+end
+

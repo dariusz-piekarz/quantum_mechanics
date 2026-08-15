@@ -43,6 +43,7 @@ function radial_function(
 
     n < 1 && throw(ArgumentError("n must be >= 1"))
     (l < 0 || l >= n) && throw(ArgumentError("l must be non-negative and < n"))
+
     fact = resolve_factorials(factorials, n + l)
     ρ = 1 / (α₀ * n)
 

@@ -5,6 +5,10 @@ using LaTeXStrings
 include(joinpath(@__DIR__, "wave_function.jl"))
 include(joinpath(@__DIR__, "isosurface.jl"))
 
+WIDTH::Integer = 900
+HIGHT::Integer = 900
+
+
 """
     plot_legendre(l; num_points=150)
 
@@ -21,7 +25,7 @@ function plot_legendre(l::Integer; num_points::Integer=150)
     x = range(-1, 1, length=num_points)
     P = legendre(l, x)
 
-    fig = Figure(size=(900, 800))
+    fig = Figure(size=(WIDTH, HIGHT))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$l}(x)", title=L"Legendre Polynomial $P_{%$l}(x)$")
     lines!(ax, x, P, color=:blue, linewidth=2)
     fig
@@ -44,9 +48,13 @@ A Makie figure containing the plotted associated Legendre polynomial.
 function plot_associated_legendre(l::Integer, m::Integer; num_points::Integer=150)
     x = range(-1, 1, length=num_points)
     fact = factorials_table(max(2l, l+abs(m)))
-    P = [associated_legendre(l, m, xi, fact) for xi in x]
 
-    fig = Figure(size=(900, 800))
+    t1 = time()
+    P = associated_legendre(l, m, x, fact)
+    t2 = time()
+    @info "Associated Legendre polynomials: $(t2 - t1)."
+
+    fig = Figure(size=(WIDTH, HIGHT))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$l}^{%$m}(x)", title=L"Associated Legendre Polynomial $P_{%$l}^{%$m}(x)$")
     lines!(ax, x, P, color=:blue, linewidth=2)
     fig
@@ -75,39 +83,33 @@ function plot_spherical_harmonic(
     θ = range(0, π, length=num_points)
     φ = range(0, 2π, length=num_points)
 
+    t1 = time()
     Y = spherical_harmonic(l, m, θ, φ, fact)
+    t2 = time()
+    @info "Spherical harmonics: $(t2 - t1)."
 
     # --------------------------------------------------------
     # Quantity
     # --------------------------------------------------------
 
     if draw == :real
-
         values = Float64.(real.(Y))
         title = L"Re $Y_{%$l}^{%$m}$"
 
     elseif draw == :imag
-
         values = Float64.(imag.(Y))
         title = L"Im $Y_{%$l}^{%$m}$"
 
     elseif draw == :abs
-
         values = Float64.(abs.(Y))
         title = L"|Y_{%$l}^{%$m}|"
 
     elseif draw == :probability
-
         values = Float64.(abs2.(Y))
         title = L"|Y_{%$l}^{%$m}|^2"
 
     else
-
-        throw(
-            ArgumentError(
-                "draw must be :real, :imag, :abs or :probability"
-            )
-        )
+        throw(ArgumentError("draw must be :real, :imag, :abs or :probability"))
     end
 
     # --------------------------------------------------------
@@ -138,33 +140,15 @@ function plot_spherical_harmonic(
     # Figure
     # --------------------------------------------------------
 
-    fig = Figure(size=(900, 800))
-
-    ax = Axis3(
-        fig[1, 1],
-        aspect=:data,
-        xlabel="x",
-        ylabel="y",
-        zlabel="z",
-        title=title
-    )
+    fig = Figure(size=(WIDTH, HIGHT))
+    ax = Axis3(fig[1, 1], aspect=:data, xlabel="x", ylabel="y", zlabel="z", title=title)
 
     # --------------------------------------------------------
     # Color
     # --------------------------------------------------------
 
     maxval = maximum(abs.(values))
-
-    surface!(
-        ax,
-        x,
-        y,
-        z,
-        color=values,
-        colormap=[:blue, :white, :red],
-        colorrange=(-maxval, maxval)
-    )
-
+    surface!(ax, x, y, z, color=values, colormap=[:blue, :white, :red], colorrange=(-maxval, maxval))
     fig
 end
 
@@ -177,9 +161,13 @@ Plot the Laguerre polynomial `L_n(x)` over the interval `[-1, 1]`.
 function plot_laguerre(n::Integer; num_points::Integer=150)
     x = range(-1, 1, length=num_points)
     fact = factorials_table(n)
-    P = [laguerre(n, xi, fact) for xi in x]
 
-    fig = Figure(size=(900, 800))
+    t1 = time()
+    P = laguerre(n, x)
+    t2 = time()
+    @info "Laguerre polynomials: $(t2 - t1)."
+
+    fig = Figure(size=(WIDTH, HIGHT))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$n}(x)", title=L"Laguerre Polynomial $P_{%$n}(x)$")
     lines!(ax, x, P, color=:blue, linewidth=2)
     fig
@@ -193,10 +181,13 @@ Plot the generalized Laguerre polynomial `L_n^(α)(x)` on `[-1, 1]`.
 """
 function plot_generalized_laguerre(n::Integer, α::Number; num_points::Integer=150)
     x = range(-1, 1, length=num_points)
-    fact = factorials_table(n)
-    P = [generalized_laguerre(n, α, xi; factorials=fact) for xi in x]
 
-    fig = Figure(size=(900, 800))
+    t1 = time()
+    P = generalized_laguerre(n, α, x)
+    t2 = time()
+    @info "Generalized Laguerre polynomials: $(t2 - t1)."
+
+    fig = Figure(size=(WIDTH, HIGHT))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$n}^{%$α}(x)", title=L"Generalized Laguerre Polynomial $P_{%$n}^{%$α}(x)$")
     lines!(ax, x, P, color=:blue, linewidth=2)
     fig
@@ -220,13 +211,17 @@ function plot_probability_density(
     extent = 2 * n^2
     ξ = (-extent):step:extent
 
+    t1 = time()
     ψ = wave_function_cartesian_grid(n, l, m, collect(ξ))
+    t2 = time()
+    @info "The wave function ψ: $(t2 - t1)."
+
     ρ = abs2.(ψ)
 
     ρmax = maximum(ρ)
     isoval = level * ρmax
 
-    fig = Figure(size=(900, 900))
+    fig = Figure(size=(WIDTH, HIGHT))
     show_isosurface(fig[1, 1], ρ; isoval=isoval, color=color)
     return fig
 end
@@ -236,19 +231,23 @@ function plot_orbital(
     n::Integer,
     l::Integer,
     m::Integer;
-    extent::Float64=15.0,
     step::Float64=0.15,
     level::Float64=0.1,
     color=(:crimson, 0.5)
 )
-    ξ = collect((-extent):step:extent)
+    extent = 2 * n^2
+    ξ = (-extent):step:extent
 
-    ψ = wave_function_cartesian_grid(n, l, m, ξ)
+    t1 = time()
+    ψ = wave_function_cartesian_grid(n, l, m, collect(ξ))
+    t2 = time()
+    @info "The wave function ψ: $(t2 - t1)."
+
     ρ = abs2.(ψ)
     ρmax = maximum(ρ)
     isoval = level * ρmax
 
-    fig = Figure(size=(900, 900))
+    fig = Figure(size=(WIDTH, HIGHT))
     show_isosurface(fig[1, 1], ρ; isoval=isoval, color=color)
     return fig
 end
