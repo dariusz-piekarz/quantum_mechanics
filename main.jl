@@ -1,13 +1,20 @@
 include(joinpath(@__DIR__, "plots.jl"))
-
-
-@variables x, α
-#associated_legendre(2,0,[1.5, 2.0, 2.5])
-#generalized_lagguerre(2, α, x)
-#plot_generalized_laguerre(2, 0.5)
-#plot_spherical_harmonic(5, 2, draw=:real)
+@show "-----------------------"
+@variables x, α, r, θ, φ
+#@time legendre(2, 0.2)
 #plot_legendre(5)
-#plot_associated_legendre(5, 3)
-plot_orbital(3, 2, 2)
-
+#@time associated_legendre(4, 2, [0.5, 0.55])
+#plot_associated_legendre(4, 2)
+#laguerre.(4, [7,8])
+#generalized_laguerre(2, α, x)
+#generalized_laguerre(2, α, x)
+#generalized_laguerre(2, 0.4, 2)
+#plot_generalized_laguerre(7, 0.5)
+# spherical_harmonic(3, 2, 0.2, 3.1)
+#spherical_harmonic.(3, 2, [0.2, 0.4, 0.4], [3.1, 1, 2])
+#plot_spherical_harmonic(8, 7, draw=:real)
+#wave_function(3, 2, 1, [0.2, 0.4], [1, 2], [2.4, 2.9, 4.5, 3.7])
+plot_probability_density(4, 3, 2, level=0.2)
+#legendre(2, [2.3, 2, 3.4, 5])
+#associated_legendre(3, 2, [2.3, 2, 3.4, 5])
 

@@ -19,7 +19,7 @@ A Makie figure containing the plotted polynomial.
 """
 function plot_legendre(l::Integer; num_points::Integer=150)
     x = range(-1, 1, length=num_points)
-    P = legendre.(l, x)
+    P = legendre(l, x)
 
     fig = Figure(size=(900, 800))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$l}(x)", title=L"Legendre Polynomial $P_{%$l}(x)$")
@@ -43,7 +43,8 @@ A Makie figure containing the plotted associated Legendre polynomial.
 """
 function plot_associated_legendre(l::Integer, m::Integer; num_points::Integer=150)
     x = range(-1, 1, length=num_points)
-    P = associated_legendre.(l, m, x)
+    fact = factorials_table(max(2l, l+abs(m)))
+    P = [associated_legendre(l, m, xi, fact) for xi in x]
 
     fig = Figure(size=(900, 800))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$l}^{%$m}(x)", title=L"Associated Legendre Polynomial $P_{%$l}^{%$m}(x)$")
@@ -52,6 +53,14 @@ function plot_associated_legendre(l::Integer, m::Integer; num_points::Integer=15
 end
 
 
+"""
+    plot_spherical_harmonic(l, m; num_points=150, draw=:real)
+
+Plot the spherical harmonic `Y_l^m` in Cartesian form for a chosen component.
+
+The `draw` keyword controls the plotted quantity: `:real`, `:imag`, `:abs`, or
+`:probability`.
+"""
 function plot_spherical_harmonic(
     l::Integer,
     m::Integer;
@@ -62,11 +71,11 @@ function plot_spherical_harmonic(
     # --------------------------------------------------------
     # Angular coordinates
     # --------------------------------------------------------
-
+    fact = factorials_table(max(2l, l+abs(m)))
     θ = range(0, π, length=num_points)
     φ = range(0, 2π, length=num_points)
 
-    Y = spherical_harmonic(l, m, θ, φ)
+    Y = spherical_harmonic(l, m, θ, φ, fact)
 
     # --------------------------------------------------------
     # Quantity
@@ -160,9 +169,15 @@ function plot_spherical_harmonic(
 end
 
 
+"""
+    plot_laguerre(n; num_points=150)
+
+Plot the Laguerre polynomial `L_n(x)` over the interval `[-1, 1]`.
+"""
 function plot_laguerre(n::Integer; num_points::Integer=150)
     x = range(-1, 1, length=num_points)
-    P = laguerre.(n, x)
+    fact = factorials_table(n)
+    P = [laguerre(n, xi, fact) for xi in x]
 
     fig = Figure(size=(900, 800))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$n}(x)", title=L"Laguerre Polynomial $P_{%$n}(x)$")
@@ -171,14 +186,49 @@ function plot_laguerre(n::Integer; num_points::Integer=150)
 end
 
 
-function plot_generalized_laguerre(n::Integer, α::Union{Num,Number}; num_points::Integer=150)
+"""
+    plot_generalized_laguerre(n, α; num_points=150)
+
+Plot the generalized Laguerre polynomial `L_n^(α)(x)` on `[-1, 1]`.
+"""
+function plot_generalized_laguerre(n::Integer, α::Number; num_points::Integer=150)
     x = range(-1, 1, length=num_points)
-    P = generalized_lagguerre.(n, α, x)
+    fact = factorials_table(n)
+    P = [generalized_laguerre(n, α, xi; factorials=fact) for xi in x]
 
     fig = Figure(size=(900, 800))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$n}^{%$α}(x)", title=L"Generalized Laguerre Polynomial $P_{%$n}^{%$α}(x)$")
     lines!(ax, x, P, color=:blue, linewidth=2)
     fig
+end
+
+
+"""
+    plot_probability_density(n, l, m; step=0.15, level=0.1, color=(:crimson, 0.5))
+
+Compute the probability density `|ψ_{n,l,m}|^2` on a Cartesian grid and render a
+3D isosurface visualization.
+"""
+function plot_probability_density(
+    n::Integer,
+    l::Integer,
+    m::Integer;
+    step::Float64=0.15,
+    level::Float64=0.1,
+    color=(:crimson, 0.5)
+)
+    extent = 2 * n^2
+    ξ = (-extent):step:extent
+
+    ψ = wave_function_cartesian_grid(n, l, m, collect(ξ))
+    ρ = abs2.(ψ)
+
+    ρmax = maximum(ρ)
+    isoval = level * ρmax
+
+    fig = Figure(size=(900, 900))
+    show_isosurface(fig[1, 1], ρ; isoval=isoval, color=color)
+    return fig
 end
 
 
@@ -188,45 +238,17 @@ function plot_orbital(
     m::Integer;
     extent::Float64=15.0,
     step::Float64=0.15,
-    level::Float64=0.1
+    level::Float64=0.1,
+    color=(:crimson, 0.5)
 )
+    ξ = collect((-extent):step:extent)
 
-    function density(x, y, z)
-
-        r̃ = sqrt(x^2 + y^2 + z^2)
-
-        if r̃ == 0
-            θ = 0.0
-            φ = 0.0
-        else
-            θ = acos(clamp(z / r̃, -1.0, 1.0))
-            φ = atan(y, x)
-        end
-
-        r = α₀ * r̃
-
-        ψ = wave_function(n, l, m, r, θ, φ)
-
-        return abs2(ψ)
-    end
-
-    ξ = (-extent):step:extent
-
-    ρmax = maximum(
-        density(x, y, z)
-        for x in ξ, y in ξ, z in ξ
-    )
-
+    ψ = wave_function_cartesian_grid(n, l, m, ξ)
+    ρ = abs2.(ψ)
+    ρmax = maximum(ρ)
     isoval = level * ρmax
 
     fig = Figure(size=(900, 900))
-
-    show_isosurface(
-        fig[1, 1],
-        density,
-        ξ;
-        isoval=isoval
-    )
-
+    show_isosurface(fig[1, 1], ρ; isoval=isoval, color=color)
     return fig
 end

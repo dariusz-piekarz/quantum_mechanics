@@ -4,7 +4,84 @@ include(joinpath(@__DIR__, "laguerre.jl"))
 α₀ = 5.2917721054482*10^(-11)
 
 """
-    wave_function(n::Integer, l::Integer, m::Integer, r, θ, φ)
+    radial_function(n, l, r; factorials=nothing)
+
+Compute the radial part `R_{n,l}(r)` of the hydrogen wave function for array inputs.
+
+This is the broadcasted form used for grid-based evaluations, where `r` can be a
+vector, matrix, or higher-dimensional array.
+"""
+function radial_function(
+    n::Integer,
+    l::Integer,
+    r::AbstractArray{<:Number},
+    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
+)::AbstractArray{<:Number}
+    n < 1 && throw(ArgumentError("n must be >= 1"))
+    (l < 0 || l >= n) && throw(ArgumentError("l must be non-negative and < n"))
+
+    fact = resolve_factorials(factorials, n + l)
+    ρ = 1 / (α₀ * n)
+    normalizer = sqrt(8 * ρ^3 * fact[n-l] / (2 * n * fact[n+l+1]))
+
+    R_nl = normalizer .* exp.(-ρ .* r) .* (2 * ρ .* r) .^ l .* generalized_laguerre(n-l-1, 2l+1, 2 * ρ .* r)
+    return R_nl
+end
+
+
+"""
+    radial_function(n, l, r; factorials=nothing)
+
+Compute the radial part `R_{n,l}(r)` for a single radial coordinate.
+"""
+function radial_function(
+    n::Integer,
+    l::Integer,
+    r::Union{Num,Number},
+    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
+)::Union{Num,Number}
+
+    n < 1 && throw(ArgumentError("n must be >= 1"))
+    (l < 0 || l >= n) && throw(ArgumentError("l must be non-negative and < n"))
+    fact = resolve_factorials(factorials, n + l)
+    ρ = 1 / (α₀ * n)
+
+    R_nl = sqrt(8 * ρ^3 * fact[n-l] / (2 * n * fact[n+l+1])) *
+           exp(-ρ * r) * (2 * r * ρ)^l *
+           generalized_laguerre(n-l-1, 2l+1, 2 * r * ρ)
+    return R_nl
+end
+
+
+
+
+"""
+    wave_function(n, l, m, r, θ, φ; factorials=nothing)
+
+Evaluate the hydrogen wave function on a full array-based grid.
+
+The result is the elementwise product of the radial term and the spherical
+harmonic, with broadcasting over all grid points.
+"""
+function wave_function(
+    n::Integer,
+    l::Integer,
+    m::Integer,
+    r::AbstractArray{<:Number},
+    θ::AbstractArray{<:Number},
+    φ::AbstractArray{<:Number},
+    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
+)::AbstractArray{<:Number}
+
+    facts = resolve_factorials(factorials, max(2l, n+l))
+    R_nl = radial_function(n, l, r, facts)
+    Y_lm = spherical_harmonic(l, m, θ, φ, facts)
+    return R_nl .* Y_lm
+end
+
+
+"""
+    wave_function(n::Integer, l::Integer, m::Integer, r::Union{Num,Number}, θ::Union{Num,Number}, φ::Union{Num,Number})
 
 Calculate the hydrogen atom wave function (eigenfunction of the Schrödinger equation).
 
@@ -34,73 +111,48 @@ function wave_function(
     m::Integer,
     r::Union{Num,Number},
     θ::Union{Num,Number},
-    φ::Union{Num,Number}
+    φ::Union{Num,Number},
+    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
 )::Union{Num,Number}
-    n < 1 && throw(ArgumentError("n must be >= 1"))
-    (l < 0 || l >= n) && throw(ArgumentError("l must be non-negative and < n"))
-    abs(m) > l && throw(ArgumentError("|m| must be <= l"))
+    facts = resolve_factorials(factorials, max(2l, n+l))
+    R_nl = radial_function(n, l, r, facts)
 
-    ρ = 1 / (α₀ * n)
-
-    R_nl = sqrt(8 * ρ^3 * factorial(n-l-1) / (2 * n * factorial(n+l))) *
-           exp(-ρ*r) * (2*r*ρ)^l *
-           generalized_lagguerre(n-l-1, 2l+1, 2*r*ρ)
-
-    Y_lm = spherical_harmonic(l, m, θ, φ)
-
+    Y_lm = spherical_harmonic(l, m, θ, φ, facts)
     return R_nl * Y_lm
 end
 
 
 """
-    wave_function(n::Integer, l::Integer, m::Integer, r::AbstractVector, θ::AbstractVector, φ::AbstractVector)
+    wave_function_cartesian_grid(n, l, m, ξ; factorials=nothing)
 
-Calculate the hydrogen atom wave function on vectorized spatial grids.
-
-Computes ψ(r, θ, φ) for multiple radial and angular coordinates, returning a 3D array
-with dimensions (length(r), length(θ), length(φ)).
-
-# Arguments
-- `n::Integer`: Principal quantum number (n ≥ 1)
-- `l::Integer`: Orbital angular momentum quantum number (0 ≤ l < n)
-- `m::Integer`: Magnetic quantum number (-l ≤ m ≤ l)
-- `r::AbstractVector{<:Number}`: Vector of radial distances from nucleus
-- `θ::AbstractVector{<:Number}`: Vector of polar angles (colatitude)
-- `φ::AbstractVector{<:Number}`: Vector of azimuthal angles
-
-# Returns
-- 3D array of shape (length(r), length(θ), length(φ)) containing wave function values
-
-# Example
-```julia
-r = range(0.1, 10.0, length=50)
-θ = range(0, π, length=40)
-φ = range(0, 2π, length=60)
-ψ = wave_function(2, 1, 0, r, θ, φ)
-```
+Build a Cartesian grid from `ξ`, compute spherical coordinates, and evaluate the
+hydrogen wave function on the resulting 3D mesh.
 """
-function wave_function(
+function wave_function_cartesian_grid(
     n::Integer,
     l::Integer,
     m::Integer,
-    r::AbstractVector{<:Number},
-    θ::AbstractVector{<:Number},
-    φ::AbstractVector{<:Number},
+    ξ::AbstractVector;
+    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
 )
 
-    # Radial scaling factor
-    ρ = 1 / (α₀ * n)
+    ξ = collect(Float64, ξ)
+    N = length(ξ)
 
-    # Radial part: R_{n,l}(r) - applies to all r values
-    R = @. sqrt(8 * ρ^3 * factorial(n-l-1) / (2 * n * factorial(n+l))) *
-           exp(-ρ*r) * (2*r*ρ)^l *
-           generalized_lagguerre(n-l-1, 2l+1, 2*r*ρ)
+    x = reshape(ξ, :, 1, 1)
+    y = reshape(ξ, 1, :, 1)
+    z = reshape(ξ, 1, 1, :)
 
-    # Angular part: Y_l^m(θ, φ) - applies to all θ, φ values
-    Y = spherical_harmonic(l, m, θ, φ)
+    X = repeat(x, 1, N, N)
+    Y = repeat(y, N, 1, N)
+    Z = repeat(z, N, N, 1)
 
-    # Full wave function: ψ(r,θ,φ) = R_{n,l}(r) · Y_l^m(θ, φ)
-    # Broadcasting to create 3D array
-    return reshape(R, :, 1, 1) .*
-           reshape(Y, 1, size(Y, 1), size(Y, 2))
+    R2 = X .^ 2 .+ Y .^ 2 .+ Z .^ 2
+    R = α₀ .* sqrt.(R2)
+    denom = sqrt.(R2) .+ eps(Float64)
+    θ = @. ifelse(R == 0, 0.0, acos(clamp(Z / denom, -1.0, 1.0)))
+    φ = @. ifelse(R == 0, 0.0, atan(Y, X))
+
+    fact = resolve_factorials(factorials, max(2l, n+l))
+    return wave_function(n, l, m, R, θ, φ, fact)
 end
