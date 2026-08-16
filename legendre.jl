@@ -95,7 +95,8 @@ function associated_legendre(
     m::Integer,
     x::AbstractArray{<:Number},
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
-)
+)::AbstractArray{<:Number}
+
     l < 0 && throw(ArgumentError("l must be non-negative"))
     abs(m) > l && throw(ArgumentError("|m| must be <= l"))
 
@@ -141,9 +142,6 @@ function associated_legendre(
     return result
 end
 
-# ============================================================
-# Associated Legendre polynomial P_l^m(x)
-# ============================================================
 
 """
     associated_legendre(l, m, x)
@@ -156,6 +154,7 @@ function associated_legendre(
     x::Num,
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
 )::Num
+
     l < 0 && throw(ArgumentError("l must be non-negative"))
     abs(m) > l && throw(ArgumentError("|m| must be <= l"))
 
@@ -201,6 +200,7 @@ function associated_legendre(
     return simplify(expand(result))
 end
 
+
 # Fallback version for scalar Number arguments
 function associated_legendre(
     l::Integer,
@@ -208,6 +208,7 @@ function associated_legendre(
     x::Number,
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
 )::Number
+
     l < 0 && throw(ArgumentError("l must be non-negative"))
     abs(m) > l && throw(ArgumentError("|m| must be <= l"))
 
@@ -260,5 +261,6 @@ function associated_legendre(
     m::Integer,
     x,
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing)
+
     return associated_legendre(l, m, x, factorials)
 end
