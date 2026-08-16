@@ -165,18 +165,13 @@ function spherical_harmonic(
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
 )::AbstractArray{<:Number}
 
+    @assert size(θ) == size(φ) "θ and φ must have the same size"
+
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
     N_lm = N(l, m, facts)
 
-    t1 = time()
     P_lm = associated_legendre(l, m, cos.(θ), facts)
-    t2 = time()
-    @info "Associated Legendre polynomials: $(t2-t1)."
-
-    t1 = time()
     phase = P(m, φ)
-    t2 = time()
-    @info "Phase calculations: $(t2-t1)."
 
     return N_lm .* P_lm .* phase
 end

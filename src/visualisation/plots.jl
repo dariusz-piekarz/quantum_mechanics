@@ -199,8 +199,8 @@ function plot_probability_density(
     n::Integer,
     l::Integer,
     m::Integer;
-    step::Float32=0.15,
-    level::Float32=0.1,
+    step::Float32=Float32(0.15),
+    level::Float32=Float32(0.1),
     color=(:crimson, 0.5)
 )::Figure
 
@@ -235,11 +235,12 @@ function plot_orbital(
     n::Integer,
     l::Integer,
     m::Integer;
-    step::Float32=0.15,
-    level::Float32=0.1,
+    step::Float32=Float32(0.15),
+    level::Float32=Float32(0.1),
     color_positive=(:royalblue, 0.6),
     color_negative=(:crimson, 0.6)
 )::Figure
+
     extent = SCALE * n^2 + LINEAR_SCALER
     ξ = (-extent):step:extent
 

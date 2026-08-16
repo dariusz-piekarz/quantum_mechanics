@@ -1,6 +1,15 @@
+DIR = joinpath(dirname(@__DIR__), "src")
+
+include(joinpath(DIR, "special_functions", "math_special.jl"))
+include(joinpath(DIR, "special_functions", "legendre.jl"))
+include(joinpath(DIR, "special_functions", "laguerre.jl"))
+include(joinpath(DIR, "hydrogen", "spherical_harmonics.jl"))
+include(joinpath(DIR, "hydrogen", "wave_function.jl"))
+include(joinpath(DIR, "visualisation", "isosurface.jl"))
+
+
 using Test
 using Symbolics
-
 
 # ============================================================
 # Helpers
