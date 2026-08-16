@@ -28,7 +28,7 @@ function radial_function(
     (l < 0 || l >= n) && throw(ArgumentError("l must be non-negative and < n"))
 
     fact = resolve_factorials(factorials, n + l)
-    α₀ = bohr_radius(T)          # <- dopasowane do typu wejścia, nie na sztywno
+    α₀ = bohr_radius(T)       
     ρ = 1 / (α₀ * n)
     normalizer = sqrt(8 * ρ^3 * fact[n-l] / (2 * n * fact[n+l+1]))
 

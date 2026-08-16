@@ -40,7 +40,7 @@ function N(
 
     l_m_mabs = fact[idx_left]
     l_p_m_abs = fact[idx_right]
-    π_T = T(π)   # <- konwersja PRZED użyciem, bo goły `π` zawsze wymusza Float64
+    π_T = T(π)
 
     if m >= 0
         return sqrt((2l + 1) / (4π_T) * l_m_mabs / l_p_m_abs)

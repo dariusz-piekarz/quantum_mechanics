@@ -486,8 +486,6 @@ end
 @testset "Float32 grid stays Float32 (no silent Float64 promotion)" begin
     grid = collect(range(-5f0, 5f0, length=5))
     @test eltype(wave_function_cartesian_grid(2, 1, 0, grid)) == ComplexF32
-
-    # m < 0 celowo — to jedyna gałąź, która wcześniej przeciekała przez associated_legendre
     @test eltype(wave_function_cartesian_grid(3, 2, -2, grid)) == ComplexF32
 end
 
@@ -495,8 +493,7 @@ end
 @testset "radial_function: eltype stays Float32 for Float32 input" begin
     r = collect(range(0f0, 5f0, length=10))
     @test eltype(radial_function(2, 1, r)) == Float32
-
-    # brzegowy przypadek z BigInt w tabeli silni — udokumentowanie, nie wymóg
+    
     r_big = collect(range(0f0, 5f0, length=3))
-    @test eltype(radial_function(12, 11, r_big)) isa Type  # tylko: nie wybucha
+    @test eltype(radial_function(12, 11, r_big)) isa Type
 end
