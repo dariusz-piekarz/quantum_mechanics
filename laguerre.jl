@@ -185,7 +185,6 @@ generalized_laguerre(2, 0, x)  # Standard Laguerre polynomial
 ```
 """
 function generalized_laguerre(n::Integer, α::Union{Num,Number}, x::Num)::Num
-
     n < 0 && throw(ArgumentError("n must be non-negative"))
     if ~(α isa Num) && α < -1
         throw(ArgumentError("α must be >= -1"))
@@ -221,6 +220,7 @@ function generalized_laguerre(
     α::Number,
     x::AbstractArray{<:Number}
 )::AbstractArray{<:Number}
+
     n < 0 && throw(ArgumentError("n must be non-negative"))
     α < -1 && throw(ArgumentError("α must be >= -1"))
 
