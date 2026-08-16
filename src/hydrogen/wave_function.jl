@@ -173,7 +173,7 @@ function wave_function_cartesian_grid(
     y = reshape(ξ, 1, :, 1)
     z = reshape(ξ, 1, 1, :)
 
-    R2 = @. x^2 + y^2 + z^2          # broadcast rozszerza leniwie, bez repeat()
+    R2 = @. x^2 + y^2 + z^2
     R = @. α₀ * sqrt(R2)
     denom = @. sqrt(R2) + eps(Float32)
     θ = @. ifelse(R2 == 0, 0.0, acos(clamp(z / denom, -1.0, 1.0)))
