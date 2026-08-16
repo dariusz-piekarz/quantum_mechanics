@@ -36,6 +36,39 @@ function show_isosurface(
     )
 end
 
+"""
+    show_isosurface!(f, s; color=(:crimson, 0.5), isoval=0.0)
+
+Add a 3D isosurface to an existing plot (mutating version).
+"""
+function show_isosurface!(
+    f,
+    s::AbstractArray{<:Real,3};
+    color=(:crimson, 0.5),
+    isoval=0.0
+)
+
+    algo = MarchingCubes(; iso=isoval)
+
+    vts, fcs = Meshing.isosurface(s, algo)
+
+    mc = GeometryBasics.Mesh(
+        Point3f.(vts),
+        GeometryBasics.TriangleFace.(fcs)
+    )
+
+    return mesh!(
+        f,
+        normal_mesh(mc);
+        color=color,
+        diffuse=Vec3f(0.8),
+        specular=Vec3f(1.1),
+        shininess=30f0,
+        backlight=5f0,
+        transparency=true
+    )
+end
+
 
 """
     show_isosurface(f, density, ξ; color=(:crimson, 0.5), isoval=0.0)
