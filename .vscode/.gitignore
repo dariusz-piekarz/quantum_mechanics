@@ -1,0 +1,46 @@
+# Julia
+*.ji
+*.cov
+*.jl.cov
+*.jl.*.cov
+*.mem
+*.heap
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+
+# Benchmark output
+benchmark/results/
+benchmark/output/
+
+# Generated plots / figures
+figures/
+plots/
+output/
+
+# Logs
+*.log
+
+# Documentation build
+docs/build/
+docs/site/
+
+# Test output
+test/coverage/
+test/output/
