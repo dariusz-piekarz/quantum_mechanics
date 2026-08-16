@@ -160,18 +160,16 @@ Compute the spherical harmonic `Y_l^m(θ, φ)` elementwise on array-valued grids
 function spherical_harmonic(
     l::Integer,
     m::Integer,
-    θ::AbstractArray{<:Number},
-    φ::AbstractArray{<:Number},
+    θ::AbstractVector{<:Number},
+    φ::AbstractVector{<:Number},
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
-)::AbstractArray{<:Number}
-
-    @assert size(θ) == size(φ) "θ and φ must have the same size"
-
+)::AbstractMatrix{<:Number}
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
     N_lm = N(l, m, facts)
+    P_lm = associated_legendre(l, m, cos.(θ), facts)   # length(θ)
+    phase = P(m, φ)                                      # length(φ)
 
-    P_lm = associated_legendre(l, m, cos.(θ), facts)
-    phase = P(m, φ)
-
-    return N_lm .* P_lm .* phase
+    P_lm_col = reshape(P_lm, :, 1)     # (length(θ), 1)
+    phase_row = reshape(phase, 1, :)    # (1, length(φ))
+    return N_lm .* P_lm_col .* phase_row   # -> (length(θ), length(φ)) macierz, bez wymogu równej długości
 end

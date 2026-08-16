@@ -3,12 +3,13 @@ DIR = joinpath(@__DIR__, "src")
 include(joinpath(DIR, "special_functions", "math_special.jl"))
 include(joinpath(DIR, "special_functions", "legendre.jl"))
 include(joinpath(DIR, "special_functions", "laguerre.jl"))
-include(joinpath(DIR, "hydrogen", "spherical_harmonics.jl"))
+include(joinpath(DIR, "special_functions", "spherical_harmonics.jl"))
+include(joinpath(DIR, "hydrogen", "radial_function.jl"))
 include(joinpath(DIR, "hydrogen", "wave_function.jl"))
 include(joinpath(DIR, "visualisation", "plots.jl"))
 
 #---------------------PARAMS---------------------
-n, l, m = 3, 2, 0
+n, l, m = 3, 2, -2
 probability_lvl = Float32(0.1)
 @show "--- New run: n: $n, l: $l, m: $m ---"
 
