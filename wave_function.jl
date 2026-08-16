@@ -3,6 +3,10 @@ include(joinpath(@__DIR__, "laguerre.jl"))
 
 α₀ = 5.2917721054482*10^(-11)
 
+# ============================================================
+# radial_function
+# ============================================================
+
 """
     radial_function(n, l, r; factorials=nothing)
 
@@ -17,6 +21,7 @@ function radial_function(
     r::AbstractArray{<:Number},
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
 )::AbstractArray{<:Number}
+
     n < 1 && throw(ArgumentError("n must be >= 1"))
     (l < 0 || l >= n) && throw(ArgumentError("l must be non-negative and < n"))
 
@@ -24,7 +29,11 @@ function radial_function(
     ρ = 1 / (α₀ * n)
     normalizer = sqrt(8 * ρ^3 * fact[n-l] / (2 * n * fact[n+l+1]))
 
+    t1 = time()
     R_nl = normalizer .* exp.(-ρ .* r) .* (2 * ρ .* r) .^ l .* generalized_laguerre(n-l-1, 2l+1, 2 * ρ .* r)
+    t2 = time()
+    @info "normalizer * (2ρr)^l * exp(-ρr)* generalized_laguerre: $(t2-t1)"
+
     return R_nl
 end
 
@@ -50,11 +59,13 @@ function radial_function(
     R_nl = sqrt(8 * ρ^3 * fact[n-l] / (2 * n * fact[n+l+1])) *
            exp(-ρ * r) * (2 * r * ρ)^l *
            generalized_laguerre(n-l-1, 2l+1, 2 * r * ρ)
+
     return R_nl
 end
 
-
-
+# ============================================================
+# the wave function
+# ============================================================
 
 """
     wave_function(n, l, m, r, θ, φ; factorials=nothing)
@@ -75,8 +86,17 @@ function wave_function(
 )::AbstractArray{<:Number}
 
     facts = resolve_factorials(factorials, max(2l, n+l))
+
+    t1 = time()
     R_nl = radial_function(n, l, r, facts)
+    t2 = time()
+    @info "radial_function: $(t2-t1)"
+
+    t1 = time()
     Y_lm = spherical_harmonic(l, m, θ, φ, facts)
+    t2 = time()
+    @info "spherical harmonics: $(t2-t1)"
+
     return R_nl .* Y_lm
 end
 
@@ -115,13 +135,17 @@ function wave_function(
     φ::Union{Num,Number},
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
 )::Union{Num,Number}
+
     facts = resolve_factorials(factorials, max(2l, n+l))
     R_nl = radial_function(n, l, r, facts)
-
     Y_lm = spherical_harmonic(l, m, θ, φ, facts)
+
     return R_nl * Y_lm
 end
 
+# ============================================================
+# the wave fucntion cartesian grid
+# ============================================================
 
 """
     wave_function_cartesian_grid(n, l, m, ξ; factorials=nothing)
@@ -153,7 +177,7 @@ function wave_function_cartesian_grid(
     denom = sqrt.(R2) .+ eps(Float64)
     θ = @. ifelse(R == 0, 0.0, acos(clamp(Z / denom, -1.0, 1.0)))
     φ = @. ifelse(R == 0, 0.0, atan(Y, X))
-
     fact = resolve_factorials(factorials, max(2l, n+l))
+
     return wave_function(n, l, m, R, θ, φ, fact)
 end
