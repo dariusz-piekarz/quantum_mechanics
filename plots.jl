@@ -239,9 +239,9 @@ function plot_orbital(
     m::Integer;
     step::Float64=0.15,
     level::Float64=0.1,
-    color=(:crimson, 0.5)
+    color_positive=(:royalblue, 0.6),
+    color_negative=(:crimson, 0.6)
 )::Figure
-
     extent = 2 * n^2
     ξ = (-extent):step:extent
 
@@ -250,16 +250,23 @@ function plot_orbital(
     t2 = time()
     @info "The wave function cartesian grid: $(t2 - t1)."
 
-    ρ = abs2.(ψ)
-    ρmax = maximum(ρ)
-    isoval = level * ρmax
+    ψreal = real.(ψ)
+    ψmax = maximum(abs, ψreal)
 
+    C = level * ψmax
     fig = Figure(size=(WIDTH, HIGHT))
 
     t1 = time()
-    show_isosurface(fig[1, 1], ρ; isoval=isoval, color=color)
+    # Positive phase
+    show_isosurface(fig[1, 1], ψreal; isoval=C, color=color_positive)
     t2 = time()
-    @info "show_isosurface: $(t2 - t1)."
+    @info "show_isosurface (real, positive): $(t2 - t1)."
+
+    t1 = time()
+    # Negative phase
+    show_isosurface!(fig[1, 1], ψreal; isoval=(-C), color=color_negative)
+    t2 = time()
+    @info "show_isosurface (real, negative): $(t2 - t1)."
 
     return fig
 end
