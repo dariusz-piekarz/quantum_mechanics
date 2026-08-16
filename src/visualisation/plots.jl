@@ -98,19 +98,19 @@ function plot_spherical_harmonic(
     @info "Spherical harmonics: $(t2 - t1)."
 
     if draw == :real
-        values = Float64.(real.(Y))
+        values = Float32.(real.(Y))
         title = L"Re $Y_{%$l}^{%$m}$"
 
     elseif draw == :imag
-        values = Float64.(imag.(Y))
+        values = Float32.(imag.(Y))
         title = L"Im $Y_{%$l}^{%$m}$"
 
     elseif draw == :abs
-        values = Float64.(abs.(Y))
+        values = Float32.(abs.(Y))
         title = L"|Y_{%$l}^{%$m}|"
 
     elseif draw == :probability
-        values = Float64.(abs2.(Y))
+        values = Float32.(abs2.(Y))
         title = L"|Y_{%$l}^{%$m}|^2"
 
     else
@@ -199,8 +199,8 @@ function plot_probability_density(
     n::Integer,
     l::Integer,
     m::Integer;
-    step::Float64=0.15,
-    level::Float64=0.1,
+    step::Float32=0.15,
+    level::Float32=0.1,
     color=(:crimson, 0.5)
 )::Figure
 
@@ -235,8 +235,8 @@ function plot_orbital(
     n::Integer,
     l::Integer,
     m::Integer;
-    step::Float64=0.15,
-    level::Float64=0.1,
+    step::Float32=0.15,
+    level::Float32=0.1,
     color_positive=(:royalblue, 0.6),
     color_negative=(:crimson, 0.6)
 )::Figure
