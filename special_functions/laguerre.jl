@@ -100,12 +100,6 @@ function laguerre(n::Integer, x::Num)::Num
 end
 
 
-# Backward-compatible alias
-function lagguerre(n::Integer, x)
-    return laguerre(n, x)
-end
-
-
 # ============================================================
 # Generalized Laguerre polynomial L_n^(α)(x)
 # ============================================================
@@ -243,10 +237,3 @@ function generalized_laguerre(
 
     return L_curr
 end
-
-
-# Backward-compatible alias
-function generalized_lagguerre(n::Integer, α, x)
-    return generalized_laguerre(n, α, x)
-end
-

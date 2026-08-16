@@ -3,9 +3,9 @@ DIR = @__DIR__
 include(joinpath(DIR, "visualisation", "plots.jl"))
 
 #---------------------PARAMS---------------------
-n, l, m = 4, 3, 0
+n, l, m = 5, 4, 1
 probability_lvl = 0.1
-@show "--- New run: n: $n, m: $m, l: $l ---"
+@show "--- New run: n: $n, l: $l, m: $m ---"
 
 #---------------------SYMBOLICS---------------------
 @variables x, α, r, θ, φ

@@ -78,11 +78,6 @@ function P(m::Integer, φ::Num)::Num
 end
 
 
-# Backward-compatible alias
-function P(m::Integer, φ)
-    return P(m, φ)
-end
-
 # ============================================================
 # Spherical harmonics Y_l^m(θ, φ)
 # ============================================================
@@ -153,36 +148,6 @@ function spherical_harmonic(
 end
 
 
-"""
-    spherical_harmonic(l, m, θ, φ; factorials=nothing)
-
-Compute the spherical harmonic `Y_l^m(θ, φ)` elementwise on array-valued grids.
-"""
-function spherical_harmonic(
-    l::Integer,
-    m::Integer,
-    θ::AbstractArray{<:Number},
-    φ::AbstractArray{<:Number},
-    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
-)::AbstractArray{<:Number}
-
-    facts = resolve_factorials(factorials, max(2l, abs(m) + l))
-    N_lm = N(l, m, facts)
-
-    t1 = time()
-    P_lm = associated_legendre(l, m, cos.(θ), facts)
-    t2 = time()
-    @info "Associated Legendre polynomials: $(t2-t1)."
-
-    t1 = time()
-    phase = P(m, φ)
-    t2 = time()
-    @info "Phase calculations: $(t2-t1)."
-
-    return N_lm .* P_lm .* phase
-end
-
-
 function spherical_harmonic(
     l::Integer,
     m::Integer,
@@ -208,16 +173,4 @@ function spherical_harmonic(
     phase_row = reshape(phase, 1, :)
 
     return N_lm .* P_lm_col .* phase_row
-end
-
-
-# Backward-compatible alias
-function spherical_harmonic(
-    l::Integer,
-    m::Integer,
-    θ,
-    φ,
-    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing)
-
-    return spherical_harmonic(l, m, θ, φ, factorials)
 end

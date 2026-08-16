@@ -76,12 +76,6 @@ function legendre(l::Integer, x::AbstractArray{<:Number})::AbstractArray{<:Numbe
 end
 
 
-# Backward-compatible alias
-function legendre(l::Integer, x)
-    return legendre(l, x)
-end
-
-
 # ============================================================
 # Associated Legendre polynomial P_l^m(x)
 # ============================================================
@@ -254,15 +248,4 @@ function associated_legendre(
     end
 
     return result
-end
-
-
-# Backward-compatible alias
-function associated_legendre(
-    l::Integer,
-    m::Integer,
-    x,
-    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing)
-
-    return associated_legendre(l, m, x, factorials)
 end
