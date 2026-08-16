@@ -13,9 +13,13 @@ using Logging
 
 Return the normalization constant for the spherical harmonic `Y_l^m`.
 
-For the standard convention,
+For the standard complex convention,
 
-N_{lm} = sqrt((2l + 1) / (4π) * (l - |m|)! / (l + |m|)!).
+N_{l,m} = sqrt((2l + 1) / (4π) * (l - |m|)! / (l + |m|)!)
+for `m >= 0`, while for negative `m` the same signed convention is used with the
+usual relation `Y_l^{-m} = (-1)^m conj(Y_l^m)`, which requires
+
+N_{l,-m} = sqrt((2l + 1) / (4π) * (l + |m|)! / (l - |m|)!).
 
 If `factorials` is provided, it must be a factorial table with convention
 `factorials[i+1] = i!`.
@@ -41,7 +45,11 @@ function N(
     l_m_mabs = fact[idx_left]
     l_p_m_abs = fact[idx_right]
 
-    return sqrt((2l + 1) / (4π) * l_m_mabs / l_p_m_abs)
+    if m >= 0
+        return sqrt((2l + 1) / (4π) * l_m_mabs / l_p_m_abs)
+    end
+
+    return sqrt((2l + 1) / (4π) * l_p_m_abs / l_m_mabs)
 end
 
 # ============================================================
@@ -148,13 +156,18 @@ function spherical_harmonic(
 end
 
 
+"""
+    spherical_harmonic(l, m, θ, φ; factorials=nothing)
+
+Compute the spherical harmonic `Y_l^m(θ, φ)` elementwise on array-valued grids.
+"""
 function spherical_harmonic(
     l::Integer,
     m::Integer,
-    θ::AbstractVector{<:Number},
-    φ::AbstractVector{<:Number},
+    θ::AbstractArray{<:Number},
+    φ::AbstractArray{<:Number},
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
-)::AbstractMatrix{<:Number}
+)::AbstractArray{<:Number}
 
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
     N_lm = N(l, m, facts)
@@ -169,8 +182,5 @@ function spherical_harmonic(
     t2 = time()
     @info "Phase calculations: $(t2-t1)."
 
-    P_lm_col = reshape(P_lm, :, 1)
-    phase_row = reshape(phase, 1, :)
-
-    return N_lm .* P_lm_col .* phase_row
+    return N_lm .* P_lm .* phase
 end

@@ -69,7 +69,7 @@ function legendre(l::Integer, x::AbstractArray{<:Number})::AbstractArray{<:Numbe
 
     for n in 2:l
         @. buf = ((2n - 1) * x * P₁ - (n - 1) * P₀) / n
-        P₀, P₁, buf = P₁, buf, P₂
+        P₀, P₁, buf = P₁, buf, P₀
     end
 
     return P₁

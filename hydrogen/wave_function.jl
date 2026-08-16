@@ -3,7 +3,13 @@ DIR = dirname(@__DIR__)
 include(joinpath(DIR, "hydrogen", "spherical_harmonics.jl"))
 include(joinpath(DIR, "special_functions", "laguerre.jl"))
 
-α₀ = 5.2917721054482*10^(-11)
+
+# ============================================================
+# Bohr radius
+# ============================================================
+
+bohr_radius(::Type{T}) where {T<:AbstractFloat} =
+    T(5.2917721054482e-11)
 
 # ============================================================
 # radial_function
@@ -28,11 +34,14 @@ function radial_function(
     (l < 0 || l >= n) && throw(ArgumentError("l must be non-negative and < n"))
 
     fact = resolve_factorials(factorials, n + l)
+    α₀ = bohr_radius(Float32)
     ρ = 1 / (α₀ * n)
     normalizer = sqrt(8 * ρ^3 * fact[n-l] / (2 * n * fact[n+l+1]))
 
     t1 = time()
-    R_nl = normalizer .* exp.(-ρ .* r) .* (2 * ρ .* r) .^ l .* generalized_laguerre(n-l-1, 2l+1, 2 * ρ .* r)
+    x = @. 2ρ * r
+    L = generalized_laguerre(n - l - 1, 2l + 1, x)
+    R_nl = @. normalizer * exp(-x / 2) * x^l * L
     t2 = time()
     @info "normalizer * (2ρr)^l * exp(-ρr)* generalized_laguerre: $(t2-t1)"
 
@@ -55,6 +64,7 @@ function radial_function(
     n < 1 && throw(ArgumentError("n must be >= 1"))
     (l < 0 || l >= n) && throw(ArgumentError("l must be non-negative and < n"))
 
+    α₀ = bohr_radius(Float64)
     fact = resolve_factorials(factorials, n + l)
     ρ = 1 / (α₀ * n)
 
@@ -162,7 +172,7 @@ function wave_function_cartesian_grid(
     ξ::AbstractVector;
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
 )
-
+    α₀ = bohr_radius(Float32)
     ξ = collect(Float32, ξ)
 
     x = reshape(ξ, :, 1, 1)
