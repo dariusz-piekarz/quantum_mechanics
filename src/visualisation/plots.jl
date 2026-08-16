@@ -1,11 +1,6 @@
 using GLMakie
 using LaTeXStrings
 
-DIR = dirname(@__DIR__)
-
-include(joinpath(DIR, "hydrogen", "wave_function.jl"))
-include(joinpath(@__DIR__, "isosurface.jl"))
-
 # ============================================================
 # global params
 # ============================================================

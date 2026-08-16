@@ -1,7 +1,3 @@
-DIR = @__DIR__
-
-include(joinpath(DIR, "visualisation", "plots.jl"))
-
 #---------------------PARAMS---------------------
 n, l, m = 5, 4, 3
 probability_lvl = 0.1

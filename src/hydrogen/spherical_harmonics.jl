@@ -1,7 +1,3 @@
-DIR = dirname(@__DIR__)
-
-include(joinpath(DIR, "special_functions", "legendre.jl"))
-
 using Logging
 
 # ============================================================

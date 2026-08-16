@@ -1,9 +1,3 @@
-DIR = dirname(@__DIR__)
-
-include(joinpath(DIR, "hydrogen", "spherical_harmonics.jl"))
-include(joinpath(DIR, "special_functions", "laguerre.jl"))
-
-
 # ============================================================
 # Bohr radius
 # ============================================================

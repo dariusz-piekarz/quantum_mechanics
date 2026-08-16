@@ -1,6 +1,6 @@
 using GLMakie
 using Meshing, GeometryBasics
-GLMakie.activate!()
+
 
 """
     show_isosurface(f, s; color=(:crimson, 0.5), isoval=0.0)
