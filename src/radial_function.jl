@@ -20,24 +20,21 @@ vector, matrix, or higher-dimensional array.
 function radial_function(
     n::Integer,
     l::Integer,
-    r::AbstractArray{<:Number},
+    r::AbstractArray{T},
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
-)::AbstractArray{<:Number}
+)::AbstractArray{<:Number} where {T<:AbstractFloat}
 
     n < 1 && throw(ArgumentError("n must be >= 1"))
     (l < 0 || l >= n) && throw(ArgumentError("l must be non-negative and < n"))
 
     fact = resolve_factorials(factorials, n + l)
-    α₀ = bohr_radius(Float32)
+    α₀ = bohr_radius(T)          # <- dopasowane do typu wejścia, nie na sztywno
     ρ = 1 / (α₀ * n)
     normalizer = sqrt(8 * ρ^3 * fact[n-l] / (2 * n * fact[n+l+1]))
 
-    t1 = time()
     x = @. 2ρ * r
     L = generalized_laguerre(n - l - 1, 2l + 1, x)
     R_nl = @. normalizer * exp(-x / 2) * x^l * L
-    t2 = time()
-    @debug "normalizer * (2ρr)^l * exp(-ρr)* generalized_laguerre: $(t2-t1)"
 
     return R_nl
 end

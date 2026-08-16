@@ -1,7 +1,7 @@
 using QuantumMechanics
 using Symbolics 
 #---------------------PARAMS---------------------
-n, l, m = 3, 2, -2
+n, l, m = 4, 2, -2
 probability_lvl = Float32(0.1)
 @show "--- New run: n: $n, l: $l, m: $m ---"
 

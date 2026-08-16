@@ -23,9 +23,9 @@ If `factorials` is provided, it must be a factorial table with convention
 function N(
     l::Integer,
     m::Integer,
-    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
-)::Number
-
+    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing;
+    T::Type{<:AbstractFloat}=Float64
+)::T
     l < 0 && throw(ArgumentError("l must be non-negative"))
     abs(m) > l && throw(ArgumentError("|m| must be <= l"))
 
@@ -40,12 +40,12 @@ function N(
 
     l_m_mabs = fact[idx_left]
     l_p_m_abs = fact[idx_right]
+    π_T = T(π)   # <- konwersja PRZED użyciem, bo goły `π` zawsze wymusza Float64
 
     if m >= 0
-        return sqrt((2l + 1) / (4π) * l_m_mabs / l_p_m_abs)
+        return sqrt((2l + 1) / (4π_T) * l_m_mabs / l_p_m_abs)
     end
-
-    return sqrt((2l + 1) / (4π) * l_p_m_abs / l_m_mabs)
+    return sqrt((2l + 1) / (4π_T) * l_p_m_abs / l_m_mabs)
 end
 
 # ============================================================
@@ -166,7 +166,8 @@ function spherical_harmonic(
 )
 
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
-    N_lm = N(l, m, facts)
+    T = real(eltype(θ))                
+    N_lm = N(l, m, facts; T=T)
     P_lm = associated_legendre(l, m, cos.(θ), facts)   # length(θ)
     phase = P(m, φ)                                      # length(φ)
 
@@ -188,7 +189,8 @@ function spherical_harmonic(
 )
 
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
-    N_lm = N(l, m, facts)
+    T = real(eltype(θ))                
+    N_lm = N(l, m, facts; T=T)
     P_lm = associated_legendre(l, m, cos.(θ), facts)   # length(θ)
     phase = P(m, φ)                                      # length(φ)
 

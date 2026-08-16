@@ -129,7 +129,7 @@ function associated_legendre(
 
     if m < 0
         facts = resolve_factorials(factorials, l + ma)
-        coefficient = (-1)^ma * facts[l-ma+1] / facts[l+ma+1]
+        coefficient = eltype(x)((-1)^ma * facts[l-ma+1] / facts[l+ma+1])
         result = @. coefficient * result
     end
 
