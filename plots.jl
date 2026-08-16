@@ -5,9 +5,16 @@ using LaTeXStrings
 include(joinpath(@__DIR__, "wave_function.jl"))
 include(joinpath(@__DIR__, "isosurface.jl"))
 
+# ============================================================
+# global params
+# ============================================================
+
 WIDTH::Integer = 900
 HIGHT::Integer = 900
 
+# ============================================================
+# plot legendre polynomials
+# ============================================================
 
 """
     plot_legendre(l; num_points=150)
@@ -21,16 +28,19 @@ Plot the Legendre polynomial \$P_l(x)\$ over the interval \$[-1, 1]\$.
 # Returns
 A Makie figure containing the plotted polynomial.
 """
-function plot_legendre(l::Integer; num_points::Integer=150)
+function plot_legendre(l::Integer; num_points::Integer=150)::Figure
     x = range(-1, 1, length=num_points)
     P = legendre(l, x)
 
     fig = Figure(size=(WIDTH, HIGHT))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$l}(x)", title=L"Legendre Polynomial $P_{%$l}(x)$")
     lines!(ax, x, P, color=:blue, linewidth=2)
-    fig
+    return fig
 end
 
+# ============================================================
+# plot associated legendre polynomials
+# ============================================================
 
 """
     plot_associated_legendre(l, m; num_points=150)
@@ -45,7 +55,7 @@ Plot the associated Legendre polynomial \$P_l^m(x)\$ over the interval \$[-1, 1]
 # Returns
 A Makie figure containing the plotted associated Legendre polynomial.
 """
-function plot_associated_legendre(l::Integer, m::Integer; num_points::Integer=150)
+function plot_associated_legendre(l::Integer, m::Integer; num_points::Integer=150)::Figure
     x = range(-1, 1, length=num_points)
     fact = factorials_table(max(2l, l+abs(m)))
 
@@ -57,9 +67,13 @@ function plot_associated_legendre(l::Integer, m::Integer; num_points::Integer=15
     fig = Figure(size=(WIDTH, HIGHT))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$l}^{%$m}(x)", title=L"Associated Legendre Polynomial $P_{%$l}^{%$m}(x)$")
     lines!(ax, x, P, color=:blue, linewidth=2)
-    fig
+
+    return fig
 end
 
+# ============================================================
+# plot spherical harmonics
+# ============================================================
 
 """
     plot_spherical_harmonic(l, m; num_points=150, draw=:real)
@@ -74,11 +88,8 @@ function plot_spherical_harmonic(
     m::Integer;
     num_points::Integer=150,
     draw::Symbol=:real
-)
+)::Figure
 
-    # --------------------------------------------------------
-    # Angular coordinates
-    # --------------------------------------------------------
     fact = factorials_table(max(2l, l+abs(m)))
     θ = range(0, π, length=num_points)
     φ = range(0, 2π, length=num_points)
@@ -87,10 +98,6 @@ function plot_spherical_harmonic(
     Y = spherical_harmonic(l, m, θ, φ, fact)
     t2 = time()
     @info "Spherical harmonics: $(t2 - t1)."
-
-    # --------------------------------------------------------
-    # Quantity
-    # --------------------------------------------------------
 
     if draw == :real
         values = Float64.(real.(Y))
@@ -112,45 +119,27 @@ function plot_spherical_harmonic(
         throw(ArgumentError("draw must be :real, :imag, :abs or :probability"))
     end
 
-    # --------------------------------------------------------
-    # Angular grid
-    # --------------------------------------------------------
-
     Θ = reshape(θ, :, 1)
     Φ = reshape(φ, 1, :)
-
-    # --------------------------------------------------------
-    # Radius
-    #
-    # For an orbital shape we use |values|.
-    # The sign is encoded by the color.
-    # --------------------------------------------------------
-
     r = abs.(values)
-
-    # --------------------------------------------------------
-    # Cartesian coordinates
-    # --------------------------------------------------------
 
     x = r .* sin.(Θ) .* cos.(Φ)
     y = r .* sin.(Θ) .* sin.(Φ)
     z = r .* cos.(Θ)
 
-    # --------------------------------------------------------
-    # Figure
-    # --------------------------------------------------------
 
     fig = Figure(size=(WIDTH, HIGHT))
     ax = Axis3(fig[1, 1], aspect=:data, xlabel="x", ylabel="y", zlabel="z", title=title)
 
-    # --------------------------------------------------------
-    # Color
-    # --------------------------------------------------------
-
     maxval = maximum(abs.(values))
     surface!(ax, x, y, z, color=values, colormap=[:blue, :white, :red], colorrange=(-maxval, maxval))
-    fig
+
+    return fig
 end
+
+# ============================================================
+# plot laguerre polynomials
+# ============================================================
 
 
 """
@@ -158,7 +147,7 @@ end
 
 Plot the Laguerre polynomial `L_n(x)` over the interval `[-1, 1]`.
 """
-function plot_laguerre(n::Integer; num_points::Integer=150)
+function plot_laguerre(n::Integer; num_points::Integer=150)::Figure
     x = range(-1, 1, length=num_points)
     fact = factorials_table(n)
 
@@ -170,16 +159,20 @@ function plot_laguerre(n::Integer; num_points::Integer=150)
     fig = Figure(size=(WIDTH, HIGHT))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$n}(x)", title=L"Laguerre Polynomial $P_{%$n}(x)$")
     lines!(ax, x, P, color=:blue, linewidth=2)
-    fig
+
+    return fig
 end
 
+# ============================================================
+# plot generalized laguerre polynomials
+# ============================================================
 
 """
     plot_generalized_laguerre(n, α; num_points=150)
 
 Plot the generalized Laguerre polynomial `L_n^(α)(x)` on `[-1, 1]`.
 """
-function plot_generalized_laguerre(n::Integer, α::Number; num_points::Integer=150)
+function plot_generalized_laguerre(n::Integer, α::Number; num_points::Integer=150)::Figure
     x = range(-1, 1, length=num_points)
 
     t1 = time()
@@ -190,9 +183,13 @@ function plot_generalized_laguerre(n::Integer, α::Number; num_points::Integer=1
     fig = Figure(size=(WIDTH, HIGHT))
     ax = Axis(fig[1, 1], xlabel="x", ylabel=L"P_{%$n}^{%$α}(x)", title=L"Generalized Laguerre Polynomial $P_{%$n}^{%$α}(x)$")
     lines!(ax, x, P, color=:blue, linewidth=2)
-    fig
+
+    return fig
 end
 
+# ============================================================
+# plot probability density function
+# ============================================================
 
 """
     plot_probability_density(n, l, m; step=0.15, level=0.1, color=(:crimson, 0.5))
@@ -207,14 +204,15 @@ function plot_probability_density(
     step::Float64=0.15,
     level::Float64=0.1,
     color=(:crimson, 0.5)
-)
+)::Figure
+
     extent = 2 * n^2
     ξ = (-extent):step:extent
 
     t1 = time()
     ψ = wave_function_cartesian_grid(n, l, m, collect(ξ))
     t2 = time()
-    @info "The wave function ψ: $(t2 - t1)."
+    @info "The wave function cartesian grid: $(t2 - t1)."
 
     ρ = abs2.(ψ)
 
@@ -222,10 +220,18 @@ function plot_probability_density(
     isoval = level * ρmax
 
     fig = Figure(size=(WIDTH, HIGHT))
+
+    t1 = time()
     show_isosurface(fig[1, 1], ρ; isoval=isoval, color=color)
+    t2 = time()
+    @info "show_isosurface: $(t2 - t1)."
+
     return fig
 end
 
+# ============================================================
+# plot orbital
+# ============================================================
 
 function plot_orbital(
     n::Integer,
@@ -234,20 +240,26 @@ function plot_orbital(
     step::Float64=0.15,
     level::Float64=0.1,
     color=(:crimson, 0.5)
-)
+)::Figure
+
     extent = 2 * n^2
     ξ = (-extent):step:extent
 
     t1 = time()
     ψ = wave_function_cartesian_grid(n, l, m, collect(ξ))
     t2 = time()
-    @info "The wave function ψ: $(t2 - t1)."
+    @info "The wave function cartesian grid: $(t2 - t1)."
 
     ρ = abs2.(ψ)
     ρmax = maximum(ρ)
     isoval = level * ρmax
 
     fig = Figure(size=(WIDTH, HIGHT))
+
+    t1 = time()
     show_isosurface(fig[1, 1], ρ; isoval=isoval, color=color)
+    t2 = time()
+    @info "show_isosurface: $(t2 - t1)."
+
     return fig
 end
