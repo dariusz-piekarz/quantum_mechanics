@@ -1,11 +1,12 @@
 using Test
 using Symbolics
 
-include(joinpath(@__DIR__, "math_special.jl"))
-include(joinpath(@__DIR__, "legendre.jl"))
-include(joinpath(@__DIR__, "laguerre.jl"))
-include(joinpath(@__DIR__, "spherical_harmonics.jl"))
-include(joinpath(@__DIR__, "wave_function.jl"))
+DIR = dirname(@__DIR__)
+include(joinpath(DIR, "special_functions", "math_special.jl"))
+include(joinpath(DIR, "special_functions", "legendre.jl"))
+include(joinpath(DIR, "special_functions", "laguerre.jl"))
+include(joinpath(DIR, "hydrogen", "spherical_harmonics.jl"))
+include(joinpath(DIR, "hydrogen", "wave_function.jl"))
 
 @testset "factorials and polynomial basics" begin
     @test factorials_table(5) == [1, 1, 2, 6, 24, 120]

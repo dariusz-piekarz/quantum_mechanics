@@ -95,14 +95,14 @@ function laguerre(n::Integer, x::Num)::Num
         L_prev, L_curr = L_curr, L_next
     end
 
-    return simplify(expand(result))
+    return simplify(expand(L_curr))
 
 end
 
 
 # Backward-compatible alias
 function lagguerre(n::Integer, x)
-    return generalized_laguerre(n, x)
+    return laguerre(n, x)
 end
 
 
@@ -234,10 +234,11 @@ function generalized_laguerre(
 
     L_prev = L0
     L_curr = L1
+    buf = similar(x)
 
     for k in 2:n
-        L_next = @. ((2k - 1 + α - x) * L_curr - (k - 1 + α) * L_prev) / k
-        L_prev, L_curr = L_curr, L_next
+        @. buf = ((2k - 1 + α - x) * L_curr - (k - 1 + α) * L_prev) / k
+        L_prev, L_curr, buf = L_curr, buf, L_prev
     end
 
     return L_curr

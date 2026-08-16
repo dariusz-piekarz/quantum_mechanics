@@ -65,10 +65,11 @@ function legendre(l::Integer, x::AbstractArray{<:Number})::AbstractArray{<:Numbe
 
     P₀ = ones(eltype(x), size(x))
     P₁ = copy(x)
+    buf = similar(x)
 
     for n in 2:l
-        P₂ = @. ((2n - 1) * x * P₁ - (n - 1) * P₀) / n
-        P₀, P₁ = P₁, P₂
+        @. buf = ((2n - 1) * x * P₁ - (n - 1) * P₀) / n
+        P₀, P₁, buf = P₁, buf, P₂
     end
 
     return P₁
@@ -120,14 +121,15 @@ function associated_legendre(
     else
         Pprev = Pmm
         Pcurr = @. (2ma + 1) * x * Pmm
+        buf = similar(x)
 
         for j in (ma+2):l
-            Pnext = @. (
+            @. buf = (
                 (2j - 1) * x * Pcurr -
                 (j + ma - 1) * Pprev
             ) / (j - ma)
 
-            Pprev, Pcurr = Pcurr, Pnext
+            Pprev, Pcurr, buf = Pcurr, buf, Pprev
         end
 
         result = Pcurr

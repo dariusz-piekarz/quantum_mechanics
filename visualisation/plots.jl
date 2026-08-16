@@ -1,16 +1,19 @@
 using GLMakie
 using LaTeXStrings
 
+DIR = dirname(@__DIR__)
 
-include(joinpath(@__DIR__, "wave_function.jl"))
+include(joinpath(DIR, "hydrogen", "wave_function.jl"))
 include(joinpath(@__DIR__, "isosurface.jl"))
 
 # ============================================================
 # global params
 # ============================================================
 
-WIDTH::Integer = 900
-HIGHT::Integer = 900
+const WIDTH = 900
+const HIGHT = 900
+const SCALE = 2
+const LINEAR_SCALER = 2
 
 # ============================================================
 # plot legendre polynomials
@@ -206,7 +209,7 @@ function plot_probability_density(
     color=(:crimson, 0.5)
 )::Figure
 
-    extent = 2 * n^2
+    extent = SCALE * n^2 + LINEAR_SCALER
     ξ = (-extent):step:extent
 
     t1 = time()
@@ -242,7 +245,7 @@ function plot_orbital(
     color_positive=(:royalblue, 0.6),
     color_negative=(:crimson, 0.6)
 )::Figure
-    extent = 2 * n^2
+    extent = SCALE * n^2 + LINEAR_SCALER
     ξ = (-extent):step:extent
 
     t1 = time()

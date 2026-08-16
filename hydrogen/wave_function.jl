@@ -1,5 +1,7 @@
-include(joinpath(@__DIR__, "spherical_harmonics.jl"))
-include(joinpath(@__DIR__, "laguerre.jl"))
+DIR = dirname(@__DIR__)
+
+include(joinpath(DIR, "hydrogen", "spherical_harmonics.jl"))
+include(joinpath(DIR, "special_functions", "laguerre.jl"))
 
 α₀ = 5.2917721054482*10^(-11)
 
@@ -161,22 +163,17 @@ function wave_function_cartesian_grid(
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
 )
 
-    ξ = collect(Float64, ξ)
-    N = length(ξ)
+    ξ = collect(Float32, ξ)
 
     x = reshape(ξ, :, 1, 1)
     y = reshape(ξ, 1, :, 1)
     z = reshape(ξ, 1, 1, :)
 
-    X = repeat(x, 1, N, N)
-    Y = repeat(y, N, 1, N)
-    Z = repeat(z, N, N, 1)
-
-    R2 = X .^ 2 .+ Y .^ 2 .+ Z .^ 2
-    R = α₀ .* sqrt.(R2)
-    denom = sqrt.(R2) .+ eps(Float64)
-    θ = @. ifelse(R == 0, 0.0, acos(clamp(Z / denom, -1.0, 1.0)))
-    φ = @. ifelse(R == 0, 0.0, atan(Y, X))
+    R2 = @. x^2 + y^2 + z^2          # broadcast rozszerza leniwie, bez repeat()
+    R = @. α₀ * sqrt(R2)
+    denom = @. sqrt(R2) + eps(Float32)
+    θ = @. ifelse(R2 == 0, 0.0, acos(clamp(z / denom, -1.0, 1.0)))
+    φ = @. ifelse(R2 == 0, 0.0, atan(y, x))
     fact = resolve_factorials(factorials, max(2l, n+l))
 
     return wave_function(n, l, m, R, θ, φ, fact)

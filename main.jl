@@ -1,7 +1,9 @@
-include(joinpath(@__DIR__, "plots.jl"))
+DIR = @__DIR__
+
+include(joinpath(DIR, "visualisation", "plots.jl"))
 
 #---------------------PARAMS---------------------
-n, m, l = 4, 3, 0
+n, l, m = 4, 3, 0
 probability_lvl = 0.1
 @show "--- New run: n: $n, m: $m, l: $l ---"
 
@@ -32,5 +34,5 @@ probability_lvl = 0.1
 #plot_associated_legendre(4, 2)
 #plot_generalized_laguerre(9, 1.5)
 #plot_spherical_harmonic(8, 7, draw=:real)
-#plot_probability_density(n, m, l, level=probability_lvl)
-plot_orbital(n, m, l, level=probability_lvl)
+#plot_probability_density(n, l, m, level=probability_lvl)
+plot_orbital(n, l, m, level=probability_lvl)
