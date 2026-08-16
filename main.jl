@@ -1,13 +1,5 @@
-DIR = joinpath(@__DIR__, "src")
-
-include(joinpath(DIR, "special_functions", "math_special.jl"))
-include(joinpath(DIR, "special_functions", "legendre.jl"))
-include(joinpath(DIR, "special_functions", "laguerre.jl"))
-include(joinpath(DIR, "special_functions", "spherical_harmonics.jl"))
-include(joinpath(DIR, "hydrogen", "radial_function.jl"))
-include(joinpath(DIR, "hydrogen", "wave_function.jl"))
-include(joinpath(DIR, "visualisation", "plots.jl"))
-
+using QuantumMechanics
+using Symbolics 
 #---------------------PARAMS---------------------
 n, l, m = 3, 2, -2
 probability_lvl = Float32(0.1)
@@ -38,7 +30,8 @@ probability_lvl = Float32(0.1)
 #---------------------PLOTS---------------------
 #plot_legendre(5)
 #plot_associated_legendre(4, 2)
+#plot_laguerre(9)
 #plot_generalized_laguerre(9, 1.5)
-#plot_spherical_harmonic(8, 7, draw=:real)
+#plot_spherical_harmonic(l, m, draw=:real)
 #plot_probability_density(n, l, m, level=probability_lvl)
 plot_orbital(n, l, m, level=probability_lvl)

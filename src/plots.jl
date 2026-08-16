@@ -27,7 +27,7 @@ Plot the Legendre polynomial \$P_l(x)\$ over the interval \$[-1, 1]\$.
 A Makie figure containing the plotted polynomial.
 """
 function plot_legendre(l::Integer; num_points::Integer=150)::Figure
-    x = range(-1, 1, length=num_points)
+    x = collect(range(-1, 1, length=num_points))
     P = legendre(l, x)
 
     fig = Figure(size=(WIDTH, HIGHT))
@@ -150,7 +150,7 @@ function plot_laguerre(n::Integer; num_points::Integer=150)::Figure
     fact = factorials_table(n)
 
     t1 = time()
-    P = laguerre(n, x)
+    P = laguerre.(n, x)
     t2 = time()
     @info "Laguerre polynomials: $(t2 - t1)."
 

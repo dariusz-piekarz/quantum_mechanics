@@ -25,13 +25,13 @@ function wave_function(
     t1 = time()
     R_nl = radial_function(n, l, r, facts)
     t2 = time()
-    @info "radial_function: $(t2-t1)"
+    @debug "radial_function: $(t2-t1)"
 
     t1 = time()
     Y_lm = spherical_harmonic(l, m, θ, φ, facts)
     t2 = time()
-    @info "spherical harmonics: $(t2-t1)"
-
+    @debug "spherical harmonics: $(t2-t1)"
+    
     return R_nl .* Y_lm
 end
 

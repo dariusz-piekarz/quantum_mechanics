@@ -160,10 +160,33 @@ Compute the spherical harmonic `Y_l^m(θ, φ)` elementwise on array-valued grids
 function spherical_harmonic(
     l::Integer,
     m::Integer,
+    θ::AbstractArray{<:Number},
+    φ::AbstractArray{<:Number},
+    factorials::Union{Nothing,AbstractArray{<:Integer}}=nothing,
+)
+
+    facts = resolve_factorials(factorials, max(2l, abs(m) + l))
+    N_lm = N(l, m, facts)
+    P_lm = associated_legendre(l, m, cos.(θ), facts)   # length(θ)
+    phase = P(m, φ)                                      # length(φ)
+
+    return N_lm .* P_lm .* phase   # -> (length(θ), length(φ)) matrix, no length requirement
+end
+
+
+"""
+    spherical_harmonic(l, m, θ, φ; factorials=nothing)
+
+Compute the spherical harmonic `Y_l^m(θ, φ)` elementwise on array-valued grids.
+"""
+function spherical_harmonic(
+    l::Integer,
+    m::Integer,
     θ::AbstractVector{<:Number},
     φ::AbstractVector{<:Number},
-    factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
-)::AbstractMatrix{<:Number}
+    factorials::Union{Nothing,AbstractArray{<:Integer}}=nothing,
+)
+
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
     N_lm = N(l, m, facts)
     P_lm = associated_legendre(l, m, cos.(θ), facts)   # length(θ)
@@ -171,5 +194,5 @@ function spherical_harmonic(
 
     P_lm_col = reshape(P_lm, :, 1)     # (length(θ), 1)
     phase_row = reshape(phase, 1, :)    # (1, length(φ))
-    return N_lm .* P_lm_col .* phase_row   # -> (length(θ), length(φ)) macierz, bez wymogu równej długości
+    return N_lm .* P_lm_col .* phase_row   # -> (length(θ), length(φ)) matrix, no length requirement
 end

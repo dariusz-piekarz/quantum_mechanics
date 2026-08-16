@@ -37,7 +37,7 @@ function radial_function(
     L = generalized_laguerre(n - l - 1, 2l + 1, x)
     R_nl = @. normalizer * exp(-x / 2) * x^l * L
     t2 = time()
-    @info "normalizer * (2ρr)^l * exp(-ρr)* generalized_laguerre: $(t2-t1)"
+    @debug "normalizer * (2ρr)^l * exp(-ρr)* generalized_laguerre: $(t2-t1)"
 
     return R_nl
 end

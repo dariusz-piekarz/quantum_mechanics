@@ -7,49 +7,53 @@ using Meshing
 using GeometryBasics
 
 # ============================================================
+# Source directory
+# ============================================================
+
+const SRC_DIR = @__DIR__
+
+# ============================================================
 # Mathematical utilities
 # ============================================================
-DIR = dirname(@__DIR__)
 
-include(joinpath(DIR, "..", "math_special.jl"))
+include(joinpath(SRC_DIR, "math_special.jl"))
 
 # ============================================================
 # Special polynomials
 # ============================================================
 
-include(joinpath(DIR, "..", "legendre.jl"))
-include(joinpath(DIR, "..", "laguerre.jl"))
+include(joinpath(SRC_DIR, "legendre.jl"))
+include(joinpath(SRC_DIR, "laguerre.jl"))
 
 # ============================================================
 # Spherical harmonics
 # ============================================================
 
-include(joinpath(DIR, "..", "spherical_harmonics.jl"))
+include(joinpath(SRC_DIR, "spherical_harmonics.jl"))
 
 # ============================================================
 # Hydrogen radial function
 # ============================================================
 
-include(joinpath(DIR, "..", "radial_function.jl"))
+include(joinpath(SRC_DIR, "radial_function.jl"))
 
 # ============================================================
 # Hydrogen wave functions
 # ============================================================
 
-include(joinpath(DIR, "..", "wave_function.jl"))
+include(joinpath(SRC_DIR, "wave_function.jl"))
 
 # ============================================================
 # Isosurfaces
 # ============================================================
 
-include(joinpath(DIR, "..", "isosurface.jl"))
+include(joinpath(SRC_DIR, "isosurface.jl"))
 
 # ============================================================
 # Plotting
 # ============================================================
 
-include(joinpath(DIR, "..", "plots.jl"))
-
+include(joinpath(SRC_DIR, "plots.jl"))
 
 # ============================================================
 # Exports
@@ -68,6 +72,7 @@ export N
 export P
 export spherical_harmonic
 
+export bohr_radius
 export radial_function
 export wave_function
 export wave_function_cartesian_grid
@@ -79,9 +84,7 @@ export plot_legendre
 export plot_associated_legendre
 export plot_spherical_harmonic
 export plot_laguerre
-export plot_associated_laguerre
-
-export plot_wave_function
+export plot_generalized_laguerre
 export plot_probability_density
 export plot_orbital
 
