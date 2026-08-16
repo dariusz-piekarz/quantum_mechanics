@@ -27,6 +27,12 @@ include(joinpath(DIR, "..", "laguerre.jl"))
 include(joinpath(DIR, "..", "spherical_harmonics.jl"))
 
 # ============================================================
+# Hydrogen radial function
+# ============================================================
+
+include(joinpath(DIR, "..", "radial_function.jl"))
+
+# ============================================================
 # Hydrogen wave functions
 # ============================================================
 
