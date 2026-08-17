@@ -63,6 +63,12 @@ include(joinpath(SRC_DIR, "plots.jl"))
 include(joinpath(SRC_DIR, "converter.jl"))
 
 # ============================================================
+# Benchmarking evaluator for SymbolicFunctions
+# ============================================================
+
+include(joinpath(SRC_DIR, "evaluator.jl"))
+
+# ============================================================
 # Differential operators
 # ============================================================
 
@@ -103,6 +109,9 @@ export plot_orbital
 
 export to_function
 export SymbolicFunction
+
+export evaluate
+export evaluate!
 
 export DifferentialOperator
 export D
