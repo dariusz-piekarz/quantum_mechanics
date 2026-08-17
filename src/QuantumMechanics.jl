@@ -5,6 +5,7 @@ using GLMakie
 using LaTeXStrings
 using Meshing
 using GeometryBasics
+using ForwardDiff
 
 # ============================================================
 # Source directory

@@ -10,6 +10,7 @@ LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Meshing = "e6723b4c-ebff-59f1-b4b7-d97aa5274f73"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 
 [extras]
 BenchmarkTools = "6e4b80f9-93f8-5f9c-8d1e-0c1b0d7e0c0e"
@@ -27,3 +28,4 @@ Meshing = "0.7"
 Symbolics = "7"
 BenchmarkTools = "1"
 Logging = "1.11"
+ForwardDiff = "0.10"

@@ -392,34 +392,33 @@ end
 
         @test Δ(1.0, 2.0, 3.0) ≈ 6.0
     end
+    @testset "operator chaining" begin
 
+        f = SymbolicFunction(
+            x^3 + y^3 + z^3,
+            (x, y, z)
+        )
+
+        g = gradient(f)
+        H = hessian(f)
+        Δ = laplacian(f)
+
+        @test g isa SymbolicFunction
+        @test H isa SymbolicFunction
+        @test Δ isa SymbolicFunction
+
+        # ∇(Δf) = ∇(6x + 6y + 6z)
+        ∇Δ = gradient(Δ)
+
+        @test ∇Δ isa SymbolicFunction
+
+        @test isequal(
+            ∇Δ.expression,
+            [6, 6, 6]
+        )
+
+        @test ∇Δ(1.0, 2.0, 3.0) ≈ [6.0, 6.0, 6.0]
+    end
 end
 
 
-@testset "operator chaining" begin
-
-    f = SymbolicFunction(
-        x^3 + y^3 + z^3,
-        (x, y, z)
-    )
-
-    g = gradient(f)
-    H = hessian(f)
-    Δ = laplacian(f)
-
-    @test g isa SymbolicFunction
-    @test H isa SymbolicFunction
-    @test Δ isa SymbolicFunction
-
-    # ∇(Δf) = ∇(6x + 6y + 6z)
-    ∇Δ = gradient(Δ)
-
-    @test ∇Δ isa SymbolicFunction
-
-    @test isequal(
-        ∇Δ.expression,
-        [6, 6, 6]
-    )
-
-    @test ∇Δ(1.0, 2.0, 3.0) ≈ [6.0, 6.0, 6.0]
-end
