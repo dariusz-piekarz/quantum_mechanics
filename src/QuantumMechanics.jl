@@ -16,7 +16,7 @@ const SRC_DIR = @__DIR__
 # Mathematical utilities
 # ============================================================
 
-include(joinpath(SRC_DIR, "math_special.jl"))
+include(joinpath(SRC_DIR, "factorials.jl"))
 
 # ============================================================
 # Special polynomials
@@ -56,6 +56,18 @@ include(joinpath(SRC_DIR, "isosurface.jl"))
 include(joinpath(SRC_DIR, "plots.jl"))
 
 # ============================================================
+# Converter symbolic functions <-> numeric functions
+# ============================================================
+
+include(joinpath(SRC_DIR, "converter.jl"))
+
+# ============================================================
+# Differential operators
+# ============================================================
+
+include(joinpath(SRC_DIR, "differential_operator.jl"))
+
+# ============================================================
 # Exports
 # ============================================================
 
@@ -87,5 +99,15 @@ export plot_laguerre
 export plot_generalized_laguerre
 export plot_probability_density
 export plot_orbital
+
+export to_function
+export SymbolicFunction
+
+export DifferentialOperator
+export D
+export gradient
+export divergence
+export laplacian
+export hessian
 
 end
