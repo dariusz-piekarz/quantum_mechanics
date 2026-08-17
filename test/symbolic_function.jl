@@ -42,7 +42,7 @@ using QuantumMechanics
 
         expr = x^2 + y^2 + z^2
 
-        f = to_function(expr, (x, y, z))
+        f = to_function(expr, (x, y, z))[1]
 
         @test f(1.0, 2.0, 3.0) ≈ 14.0
         @test f(2.0, -3.0, 4.0) ≈ 29.0
@@ -64,7 +64,7 @@ using QuantumMechanics
         @test f(1.0) ≈ 4.0
         @test f(2.0) ≈ 13.0
 
-        g = to_function(expr, (t,))
+        g = to_function(expr, (t,))[1]
 
         @test g(0.0) ≈ 1.0
         @test g(2.0) ≈ 13.0
