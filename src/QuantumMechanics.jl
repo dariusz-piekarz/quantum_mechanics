@@ -81,6 +81,12 @@ include(joinpath(SRC_DIR, "differential_operator.jl"))
 include(joinpath(SRC_DIR, "potential.jl"))
 
 # ============================================================
+# Kinetic Operator
+# ============================================================
+
+include(joinpath(SRC_DIR, "kinetic_operator.jl"))
+
+# ============================================================
 # Exports
 # ============================================================
 
@@ -133,5 +139,9 @@ export V_e
 export V_ee
 export V_en
 export V_ne
+
+export AbstractOperator
+export KineticOperator
+export T̂
 
 end
