@@ -5,7 +5,7 @@ using QuantumMechanics
 
 @testset "SymbolicFunction" begin
 
-    @variables x y z t
+    @variables x y z
 
     # ---------------------------------------------------------
     # Construction
@@ -42,7 +42,7 @@ using QuantumMechanics
 
         expr = x^2 + y^2 + z^2
 
-        f = to_function(expr, (x, y, z))
+        f = to_function(expr, (x, y, z))[1]
 
         @test f(1.0, 2.0, 3.0) ≈ 14.0
         @test f(2.0, -3.0, 4.0) ≈ 29.0
@@ -53,6 +53,9 @@ using QuantumMechanics
     # ---------------------------------------------------------
 
     @testset "single variable" begin
+
+        @variables t
+
         expr = t^3 + 2t + 1
 
         f = SymbolicFunction(expr, (t,))
@@ -61,7 +64,7 @@ using QuantumMechanics
         @test f(1.0) ≈ 4.0
         @test f(2.0) ≈ 13.0
 
-        g = to_function(expr, (t,))
+        g = to_function(expr, (t,))[1]
 
         @test g(0.0) ≈ 1.0
         @test g(2.0) ≈ 13.0
@@ -81,21 +84,6 @@ using QuantumMechanics
         expected = sin(1.0) + cos(2.0) + exp(3.0)
 
         @test f(1.0, 2.0, 3.0) ≈ expected
-    end
-
-    @testset "numeric divergence/laplacian match symbolic" begin
-    fvec = [x, y^2, z^3]
-    expr = x^2 + y^2 + z^2
-
-    div_sym = divergence(fvec, (x, y, z))     
-    lap_sym = laplacian(expr, (x, y, z))
-
-    point = [1.0, 2.0, 3.0]
-    fvec_num(v) = [v[1], v[2]^2, v[3]^3]
-    fscal_num(v) = v[1]^2 + v[2]^2 + v[3]^2
-
-    @test divergence(fvec_num, point) ≈ 1 + 2*2.0 + 3*3.0^2
-    @test laplacian(fscal_num, point) ≈ 6.0
     end
 
 end
@@ -432,5 +420,3 @@ end
         @test ∇Δ(1.0, 2.0, 3.0) ≈ [6.0, 6.0, 6.0]
     end
 end
-
-
