@@ -96,7 +96,7 @@ using QuantumMechanics
 
     @test divergence(fvec_num, point) ≈ 1 + 2*2.0 + 3*3.0^2
     @test laplacian(fscal_num, point) ≈ 6.0
-end
+    end
 
 end
 
