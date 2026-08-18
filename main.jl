@@ -36,3 +36,30 @@ probability_lvl = Float32(0.1)
 #plot_probability_density(n, l, m, level=probability_lvl)
 #plot_orbital(n, l, m, level=probability_lvl)
 
+@variables x y z t
+       T = Float64
+
+        V = CoulombPotential(-one(T), [one(T)], zeros(T, 1, 3))
+        K = KineticOperator(T)
+        ψ = SymbolicFunction(x^2 + y^2 + z^2, (x, y, z))
+        Hψ = Hamiltonian(V, K, ψ)
+
+        X = [
+            1.0 0.0 0.0
+            0.0 1.0 0.0
+            0.0 0.0 2.0
+            3.0 0.0 0.0
+        ]
+
+        out = Vector{Float64}(undef, size(X, 1))
+
+        evaluate!(Hψ, X, out)
+        @show out
+        expected = [
+            -4.0,
+            -4.0,
+            -5.0,
+            -1.0 / 3.0 * 9.0 - 3.0
+        ]
+
+        @show out ≈ expected

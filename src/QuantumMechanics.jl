@@ -87,6 +87,12 @@ include(joinpath(SRC_DIR, "potential.jl"))
 include(joinpath(SRC_DIR, "kinetic_operator.jl"))
 
 # ============================================================
+# Hamiltonian
+# ============================================================
+
+include(joinpath(SRC_DIR, "hamiltonian.jl"))
+
+# ============================================================
 # Exports
 # ============================================================
 
@@ -143,5 +149,7 @@ export V_ne
 export AbstractOperator
 export KineticOperator
 export T̂
+
+export Hamiltonian
 
 end
