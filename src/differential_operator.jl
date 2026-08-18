@@ -11,9 +11,7 @@ D(var) = DifferentialOperator(var)
 
 
 function (D::DifferentialOperator)(f)
-    return expand_derivatives(
-        Differential(D.variable)(f)
-    )
+    return expand_derivatives(Differential(D.variable)(f))
 end
 
 
@@ -32,14 +30,8 @@ function gradient(f, variables::AbstractVector)
 end
 
 # SymbolicFunction
-function gradient(
-    f::SymbolicFunction,
-    variables=f.variables
-)
-    return SymbolicFunction(
-        gradient(f.expression, variables),
-        variables
-    )
+function gradient(f::SymbolicFunction, variables=f.variables)
+    return SymbolicFunction(gradient(f.expression, variables), variables)
 end
 
 
@@ -59,18 +51,13 @@ end
 
 # Numerical
 function divergence(f, variables::AbstractVector)
-    return ForwardDiff.divergence(f, variables)
+    jacobian = ForwardDiff.jacobian(f, variables)
+    return sum(jacobian[i, i] for i in 1: length(jacobian[:, 1]))
 end
 
 # SymbolicFunction
-function divergence(
-    f::SymbolicFunction,
-    variables=f.variables
-)
-    return SymbolicFunction(
-        divergence(f.expression, variables),
-        variables
-    )
+function divergence(f::SymbolicFunction,variables=f.variables)
+    return SymbolicFunction(divergence(f.expression, variables), variables)
 end
 
 
@@ -80,26 +67,18 @@ end
 
 # Symbolic
 function laplacian(f, variables)
-    return divergence(
-        gradient(f, variables),
-        variables
-    )
+    return divergence(gradient(f, variables),variables)
 end
 
 # Numerical
 function laplacian(f, variables::AbstractVector)
-    return ForwardDiff.laplacian(f, variables)
+    hessian = ForwardDiff.hessian(f, variables)
+    return sum(hessian[i, i] for i in 1: length(hessian[:, 1]))
 end
 
 # SymbolicFunction
-function laplacian(
-    f::SymbolicFunction,
-    variables=f.variables
-)
-    return SymbolicFunction(
-        laplacian(f.expression, variables),
-        variables
-    )
+function laplacian(f::SymbolicFunction, variables=f.variables)
+    return SymbolicFunction(laplacian(f.expression, variables), variables)
 end
 
 
@@ -111,7 +90,7 @@ end
 function hessian(f, variables)
     n = length(variables)
 
-    h = Matrix{Any}(undef, n, n)
+    h = Matrix{Num}(undef, n, n)
 
     for i in 1:n
         for j in 1:i
@@ -133,12 +112,6 @@ function hessian(f, variables::AbstractVector)
 end
 
 # SymbolicFunction
-function hessian(
-    f::SymbolicFunction,
-    variables=f.variables
-)
-    return SymbolicFunction(
-        hessian(f.expression, variables),
-        variables
-    )
+function hessian(f::SymbolicFunction, variables=f.variables)
+    return SymbolicFunction(hessian(f.expression, variables), variables)
 end
