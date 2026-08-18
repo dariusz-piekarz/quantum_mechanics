@@ -75,6 +75,12 @@ include(joinpath(SRC_DIR, "evaluator.jl"))
 include(joinpath(SRC_DIR, "differential_operator.jl"))
 
 # ============================================================
+# Potential
+# ============================================================
+
+include(joinpath(SRC_DIR, "potential.jl"))
+
+# ============================================================
 # Exports
 # ============================================================
 
@@ -119,5 +125,13 @@ export gradient
 export divergence
 export laplacian
 export hessian
+
+export AbstractPotential
+export CoulombPotential
+export V
+export V_e
+export V_ee
+export V_en
+export V_ne
 
 end
