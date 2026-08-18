@@ -1,6 +1,6 @@
 using QuantumMechanics
 
-include("benchmark.jl")
+include("bench_benchmark.jl")
 
 # ============================================================
 # Data

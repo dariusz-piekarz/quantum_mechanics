@@ -12,85 +12,90 @@ using ForwardDiff
 # ============================================================
 
 const SRC_DIR = @__DIR__
+const SPEC_FUNCT_DIR = joinpath(SRC_DIR, "special_functions")
+const HYDROGEN_ORB_DIR = joinpath(SRC_DIR, "hydrogen_orbitals")
+const VISUALISATION_DIR = joinpath(SRC_DIR, "visualisation")
+const SYMB_FUNCT_DIR = joinpath(SRC_DIR, "symbolic_functions")
+const SYMB_OP_DIR = joinpath(SRC_DIR, "symbolic_operators")
 
 # ============================================================
 # Mathematical utilities
 # ============================================================
 
-include(joinpath(SRC_DIR, "factorials.jl"))
+include(joinpath(SPEC_FUNCT_DIR, "factorials.jl"))
 
 # ============================================================
 # Special polynomials
 # ============================================================
 
-include(joinpath(SRC_DIR, "legendre.jl"))
-include(joinpath(SRC_DIR, "laguerre.jl"))
+include(joinpath(SPEC_FUNCT_DIR, "legendre.jl"))
+include(joinpath(SPEC_FUNCT_DIR, "laguerre.jl"))
 
 # ============================================================
 # Spherical harmonics
 # ============================================================
 
-include(joinpath(SRC_DIR, "spherical_harmonics.jl"))
+include(joinpath(SPEC_FUNCT_DIR, "spherical_harmonics.jl"))
 
 # ============================================================
 # Hydrogen radial function
 # ============================================================
 
-include(joinpath(SRC_DIR, "radial_function.jl"))
+include(joinpath(HYDROGEN_ORB_DIR, "radial_function.jl"))
 
 # ============================================================
 # Hydrogen wave functions
 # ============================================================
 
-include(joinpath(SRC_DIR, "wave_function.jl"))
+include(joinpath(HYDROGEN_ORB_DIR, "wave_function.jl"))
 
 # ============================================================
 # Isosurfaces
 # ============================================================
 
-include(joinpath(SRC_DIR, "isosurface.jl"))
+include(joinpath(VISUALISATION_DIR, "isosurface.jl"))
 
 # ============================================================
 # Plotting
 # ============================================================
 
-include(joinpath(SRC_DIR, "plots.jl"))
+include(joinpath(VISUALISATION_DIR, "plots.jl"))
 
 # ============================================================
 # Converter symbolic functions <-> numeric functions
 # ============================================================
 
-include(joinpath(SRC_DIR, "converter.jl"))
+include(joinpath(SYMB_FUNCT_DIR, "converter.jl"))
 
 # ============================================================
 # Benchmarking evaluator for SymbolicFunctions
 # ============================================================
 
-include(joinpath(SRC_DIR, "evaluator.jl"))
+include(joinpath(SYMB_FUNCT_DIR, "evaluator.jl"))
 
 # ============================================================
 # Differential operators
 # ============================================================
 
-include(joinpath(SRC_DIR, "differential_operator.jl"))
+include(joinpath(SYMB_OP_DIR, "differential_operator.jl"))
 
 # ============================================================
 # Potential
 # ============================================================
 
-include(joinpath(SRC_DIR, "potential.jl"))
+include(joinpath(SYMB_OP_DIR, "potential.jl"))
 
 # ============================================================
 # Kinetic Operator
 # ============================================================
 
-include(joinpath(SRC_DIR, "kinetic_operator.jl"))
+include(joinpath(SYMB_OP_DIR, "kinetic_operator.jl"))
 
 # ============================================================
 # Hamiltonian
 # ============================================================
 
-include(joinpath(SRC_DIR, "hamiltonian.jl"))
+include(joinpath(SYMB_OP_DIR, "hamiltonian.jl"))
 
 # ============================================================
 # Exports
