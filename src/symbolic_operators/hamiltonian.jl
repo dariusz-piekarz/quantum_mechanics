@@ -1,7 +1,7 @@
 using QuantumMechanics
 
 
-function Hamiltonian(V::CoulombPotential{T}, K::KineticOperator{T}, ψ::SymbolicFunction) where {T}
+function Hamiltonian(V::AbstractPotential, K::KineticOperator{T}, ψ::SymbolicFunction) where {T}
     variables = ψ.variables
 
     Tψ = K(ψ)

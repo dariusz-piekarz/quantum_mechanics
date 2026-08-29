@@ -252,5 +252,44 @@ using QuantumMechanics
 
         @test out ≈ expected
     end
+    
+    # ============================================================
+    # Harmonic potential
+    # ============================================================
 
+    @testset "Hamiltonian with the harmonic potential" begin
+
+        T = Float64
+
+        V = HarmonicPotential(1.0)
+
+        K = KineticOperator(T)
+
+         ψ = SymbolicFunction(
+            x^2 + y^2 + z^2,
+            (x, y, z)
+        )
+
+        X = [
+            1.0 0.0 0.0
+            0.0 1.0 0.0
+            0.0 0.0 2.0
+            3.0 0.0 0.0
+        ]
+        
+        Hψ = Hamiltonian(V, K, ψ)
+
+        out = Vector{Float64}(undef, size(X, 1))
+
+        evaluate!(Hψ, X, out)
+
+        expected = [
+            -2.5,
+            -2.5,
+            5.0,
+            37.5
+        ]
+
+        @test out ≈ expected
+    end
 end
