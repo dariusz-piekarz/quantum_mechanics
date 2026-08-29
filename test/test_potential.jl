@@ -2,6 +2,7 @@ using Test
 using Symbolics
 using QuantumMechanics
 
+
 @testset "CoulombPotential" begin
 
     # ========================================================
@@ -306,5 +307,82 @@ using QuantumMechanics
 
         @test result isa Float32
         @test result ≈ -T(1) / T(5)
+    end
+end
+
+
+@testset "HarmonicPotential" begin
+
+    @testset "Construction" begin
+        k = 2.0
+        V = HarmonicPotential(k)
+
+        @test V isa HarmonicPotential{Float64}
+        @test V.k == k
+    end
+
+
+    @testset "Numerical evaluation" begin
+        k = 2.0
+        V = HarmonicPotential(k)
+
+        @test V(0.0, 0.0, 0.0) == 0.0
+
+        @test V(1.0, 0.0, 0.0) == 1.0
+        @test V(0.0, 1.0, 0.0) == 1.0
+        @test V(0.0, 0.0, 1.0) == 1.0
+
+        @test V(1.0, 2.0, 3.0) == 14.0
+        @test V(-1.0, -2.0, -3.0) == 14.0
+    end
+
+
+    @testset "Float32 evaluation" begin
+        k = Float32(2.0)
+        V = HarmonicPotential(k)
+
+        result = V(
+            Float32(1.0),
+            Float32(2.0),
+            Float32(3.0)
+        )
+
+        @test result isa Float32
+        @test result == Float32(14.0)
+    end
+
+
+    @testset "Symbolic evaluation" begin
+        k = 2.0
+        V = HarmonicPotential(k)
+
+        @variables x y z
+
+        result = V(x, y, z)
+
+        expected = 1.0 * (x^2 + y^2 + z^2)
+
+        @test isequal(result, expected)
+    end
+
+
+    @testset "Symmetry" begin
+        V = HarmonicPotential(2.0)
+
+        x, y, z = 1.2, -2.3, 3.4
+
+        @test V(x, y, z) ≈ V(-x, y, z)
+        @test V(x, y, z) ≈ V(x, -y, z)
+        @test V(x, y, z) ≈ V(x, y, -z)
+    end
+
+
+    @testset "Scaling with k" begin
+        V1 = HarmonicPotential(1.0)
+        V2 = HarmonicPotential(2.0)
+
+        x, y, z = 1.0, 2.0, 3.0
+
+        @test V2(x, y, z) ≈ 2 * V1(x, y, z)
     end
 end

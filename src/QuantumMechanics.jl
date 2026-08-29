@@ -160,6 +160,7 @@ export hessian
 
 export AbstractPotential
 export CoulombPotential
+export HarmonicPotential
 export V
 export V_e
 export V_ee

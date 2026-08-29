@@ -1,6 +1,7 @@
 using QuantumMechanics
 using Symbolics
 
+
 abstract type AbstractPotential end
 
 
@@ -8,6 +9,11 @@ struct CoulombPotential{T} <: AbstractPotential
     charge::T
     source_charges::Vector{T}
     source_positions::Matrix{T}
+end
+
+
+struct HarmonicPotential{T} <: AbstractPotential
+    k::T
 end
 
 
@@ -57,6 +63,7 @@ function V_e(::Type{T}) where {T}
     )
 end
 
+
 function V_ee(::Type{T}) where {T}
     return CoulombPotential{T}(
         -one(T),
@@ -64,6 +71,7 @@ function V_ee(::Type{T}) where {T}
         zeros(T, 1, 3)
     )
 end
+
 
 function V_en(::Type{T}) where {T}
     return CoulombPotential{T}(
@@ -73,10 +81,21 @@ function V_en(::Type{T}) where {T}
     )
 end
 
+
 function V_ne(::Type{T}) where {T}
     return CoulombPotential{T}(
         one(T),
         [-one(T)],
         zeros(T, 1, 3)
     )
+end
+
+
+function (V::HarmonicPotential{T})(x::Num, y::Num, z::Num)::Num where {T}
+    return V.k / T(2) * (x^2 + y^2 + z^2)
+end
+
+
+function (V::HarmonicPotential{T})(x::T, y::T, z::T)::T where {T}
+    return V.k / T(2) * (x^2 + y^2 + z^2)
 end
