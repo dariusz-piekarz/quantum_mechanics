@@ -173,7 +173,8 @@ export T̂
 
 export Hamiltonian
 
-export raw_laplacian
+export raw_laplacian_1d
+export laplacian_1d
 export eigen_solver
 
 end

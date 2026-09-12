@@ -1,7 +1,7 @@
 using SparseArrays
 
 
-function raw_laplacian(n::Integer, h::T, ::Type{T})::SparseMatrixCSC{T} where T <: Real
+function raw_laplacian_1d(n::Integer, h::T, ::Type{T})::SparseMatrixCSC{T} where T <: Real
     n <= 0 && throw(DimensionMismatch("n cannot be less than 1!"))
     
     rows = repeat(1:n, inner = [3])
@@ -11,36 +11,57 @@ function raw_laplacian(n::Integer, h::T, ::Type{T})::SparseMatrixCSC{T} where T 
 end
 
 
-function laplacian(
+function laplacian_1d(
     n::Integer,
-    ::Val{:start},
+    ::Val{:forward},
     h::T,
     ::Type{T}
-) where T <: Real
-    raw = raw_laplacian(n, h, T)
+)::SparseMatrixCSC{T} where T <: Real
+    raw = raw_laplacian_1d(n, h, T)
     return raw[:, 3:(n + 2)]
 end
 
 
-function laplacian(
+function laplacian_1d(
     n::Integer,
-    ::Val{:end},
+    ::Val{:backward},
     h::T,
     ::Type{T}
-) where T <: Real
+)::SparseMatrixCSC{T} where T <: Real
 
-    raw = raw_laplacian(n, h, T)
+    raw = raw_laplacian_1d(n, h, T)
     return raw[:, 1:n]
+end
+
+
+function laplacian_1d(
+    n::Integer,
+    ::Val{:central},
+    h::T,
+    ::Type{T}
+)::SparseMatrixCSC{T} where T <: Real
+
+    raw = raw_laplacian_1d(n, h, T)
+    return raw[:, 2:(n + 1)]
 end
 
 
 function laplacian(
     n::Integer,
-    ::Val{:twotail},
+    cut_type::Union{Val{:forward}, Val{:backward}, Val{:central}},
     h::T,
-    ::Type{T}
-) where T <: Real
+    ::Type{T},
+    dim::Integer = 3
+    )::SparseMatrixCSC{T} where T <: Real
 
-    raw = raw_laplacian(n, h, T)
-    return raw[:, 2:(n + 1)]
+    dim < 1 && throw(DimensionMismatch("Cannot create the discretized Laplacian for a dimension < 1!"))
+
+    lp = spzeros(T, n^dim, n^dim)
+    lp1 = laplacian_1d(n, cut_type, h, T)
+
+    for i in 1:dim
+        lp += kron(ones(T, n^(i - 1), n^(i - 1)), lp1, ones(T, n^(dim - i), n^(dim - i)))
+    end
+
+    return lp
 end

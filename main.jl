@@ -1,5 +1,6 @@
 using QuantumMechanics
 using Symbolics 
+using SparseArrays
 
 
 #---------------------PARAMS---------------------
@@ -38,4 +39,7 @@ probability_lvl = Float32(0.1)
 #plot_probability_density(n, l, m, level=probability_lvl)
 #plot_orbital(n, l, m, level=probability_lvl)
 
-@show raw_laplacian(0, Float32(0.1), Float32)
+
+
+@show laplacian(3, Val(:forward), Float32(1.0), Float32, 3)
+
