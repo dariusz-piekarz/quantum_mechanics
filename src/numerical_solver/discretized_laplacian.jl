@@ -60,7 +60,9 @@ function laplacian(
     lp1 = laplacian_1d(n, cut_type, h, T)
 
     for i in 1:dim
-        lp += kron(ones(T, n^(i - 1), n^(i - 1)), lp1, ones(T, n^(dim - i), n^(dim - i)))
+        left_id = spdiagm(0 => ones(T, n^(i - 1)))
+        right_id = spdiagm(0 => ones(T, n^(dim - i)))
+        lp += kron(left_id, lp1, right_id)
     end
 
     return lp

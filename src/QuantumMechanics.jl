@@ -107,6 +107,12 @@ include(joinpath(SYMB_OP_DIR, "hamiltonian.jl"))
 include(joinpath(NUM_SOLV_DIR, "discretized_laplacian.jl"))
 
 # ============================================================
+# discretized hamiltonian
+# ============================================================
+
+include(joinpath(NUM_SOLV_DIR, "discretized_hamiltonian.jl"))
+
+# ============================================================
 # eigensolver
 # ============================================================
 
@@ -173,8 +179,15 @@ export T̂
 
 export Hamiltonian
 
+export Grid
+export GridMatrix
+export grid_step
+export grid_size
 export raw_laplacian_1d
 export laplacian_1d
+export kinetic_operator
+export potential_operator
+export hamiltonian
 export eigen_solver
 
 end
