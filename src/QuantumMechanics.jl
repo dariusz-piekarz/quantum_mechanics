@@ -25,98 +25,98 @@ const NUM_SOLV_DIR = joinpath(SRC_DIR, "numerical_solver")
 # Mathematical utilities
 # ============================================================
 
-include(joinpath(SPEC_FUNCT_DIR, "factorials.jl"))
+include("special_functions/factorials.jl")
 
 # ============================================================
 # Special polynomials
 # ============================================================
 
-include(joinpath(SPEC_FUNCT_DIR, "legendre.jl"))
-include(joinpath(SPEC_FUNCT_DIR, "laguerre.jl"))
+include("special_functions/legendre.jl")
+include("special_functions/laguerre.jl")
 
 # ============================================================
 # Spherical harmonics
 # ============================================================
 
-include(joinpath(SPEC_FUNCT_DIR, "spherical_harmonics.jl"))
+include("special_functions/spherical_harmonics.jl")
 
 # ============================================================
 # Hydrogen radial function
 # ============================================================
 
-include(joinpath(HYDROGEN_ORB_DIR, "radial_function.jl"))
+include("hydrogen_orbitals/radial_function.jl")
 
 # ============================================================
 # Hydrogen wave functions
 # ============================================================
 
-include(joinpath(HYDROGEN_ORB_DIR, "wave_function.jl"))
+include("hydrogen_orbitals/wave_function.jl")
 
 # ============================================================
 # Isosurfaces
 # ============================================================
 
-include(joinpath(VISUALISATION_DIR, "isosurface.jl"))
+include("visualisation/isosurface.jl")
 
 # ============================================================
 # Plotting
 # ============================================================
 
-include(joinpath(VISUALISATION_DIR, "plots.jl"))
+include("visualisation/plots.jl")
 
 # ============================================================
 # Converter symbolic functions <-> numeric functions
 # ============================================================
 
-include(joinpath(SYMB_FUNCT_DIR, "converter.jl"))
+include("symbolic_functions/converter.jl")
 
 # ============================================================
 # Benchmarking evaluator for SymbolicFunctions
 # ============================================================
 
-include(joinpath(SYMB_FUNCT_DIR, "evaluator.jl"))
+include("symbolic_functions/evaluator.jl")
 
 # ============================================================
 # Differential operators
 # ============================================================
 
-include(joinpath(SYMB_OP_DIR, "differential_operator.jl"))
+include("symbolic_operators/differential_operator.jl")
 
 # ============================================================
 # Potential
 # ============================================================
 
-include(joinpath(SYMB_OP_DIR, "potential.jl"))
+include("symbolic_operators/potential.jl")
 
 # ============================================================
 # Kinetic Operator
 # ============================================================
 
-include(joinpath(SYMB_OP_DIR, "kinetic_operator.jl"))
+include("symbolic_operators/kinetic_operator.jl")
 
 # ============================================================
 # Hamiltonian
 # ============================================================
 
-include(joinpath(SYMB_OP_DIR, "hamiltonian.jl"))
+include("symbolic_operators/hamiltonian.jl")
 
 # ============================================================
 # discretized laplacian
 # ============================================================
 
-include(joinpath(NUM_SOLV_DIR, "discretized_laplacian.jl"))
+include("numerical_solver/discretized_laplacian.jl")
 
 # ============================================================
 # discretized hamiltonian
 # ============================================================
 
-include(joinpath(NUM_SOLV_DIR, "discretized_hamiltonian.jl"))
+include("numerical_solver/discretized_hamiltonian.jl")
 
 # ============================================================
 # eigensolver
 # ============================================================
 
-include(joinpath(NUM_SOLV_DIR, "eigensolver.jl"))
+include("numerical_solver/eigensolver.jl")
 
 # ============================================================
 # Exports

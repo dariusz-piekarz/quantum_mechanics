@@ -1,6 +1,7 @@
 using Test
 using Symbolics
 using SparseArrays
+using LinearAlgebra
 using QuantumMechanics
 
 @testset "Grid" begin
@@ -100,6 +101,55 @@ end
     @test H[1, 1] ≈ 12.0
     @test H[2, 2] ≈ 12.125
     @test H[8, 8] ≈ 12.375
+end
+
+
+@testset "eigen_solver for GridMatrix Hamiltonians" begin
+    T = Float64
+    x_axis = range(0.5, step = 0.5, length = 2)
+    grid = GridMatrix(x_axis, x_axis, x_axis)
+
+    potentials = [
+        ("Harmonic", HarmonicPotential(T(1.0))),
+        ("V_e", V_e(T)),
+        ("V_ee", V_ee(T)),
+        ("V_en", V_en(T)),
+        ("V_ne", V_ne(T))
+    ]
+
+    for (name, V) in potentials
+        H = hamiltonian(V, grid, Val(:central), T)
+        eigvals, eigvecs = eigen_solver(H, T)
+
+        @test length(eigvals) == length(eigvecs)
+        @test length(eigvals) > 0
+        @test length(eigvals) ≤ size(H, 1)
+
+        for (λ, ψ) in zip(eigvals, eigvecs)
+            residual = H * ψ - λ * ψ
+            @test norm(residual) ≤ 1e-7 * max(1.0, norm(H))
+        end
+    end
+end
+
+
+@testset "hydrogen ground-state eigenpair on GridMatrix" begin
+    T = Float64
+
+    x_axis = range(0.5, step = 0.5, length = 3)
+    grid = GridMatrix(x_axis, x_axis, x_axis)
+    V = CoulombPotential(-one(T), [one(T)], zeros(T, 1, 3))
+    H = hamiltonian(V, grid, Val(:central), T)
+
+    eigvals, eigvecs = eigen_solver(H, T)
+    sorted_vals = sort(real.(eigvals))
+    idx = argmin(real.(eigvals))
+    ψ = eigvecs[idx]
+
+    @test length(eigvals) == length(eigvecs)
+    @test length(eigvals) > 0
+    @test sorted_vals[1] < 5.0
+    @test norm(H * ψ - sorted_vals[1] * ψ) ≤ 1e-7 * max(1.0, norm(H))
 end
 
 
