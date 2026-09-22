@@ -20,7 +20,7 @@ function eigen_solver(op::AbstractArray{T}, ::Type{T}; howmany::Int = min(10, si
     fill!(v, zero(T))
     v[1] = one(T)
 
-    sol = eigsolve(op, v, howmany, which, maxiter=200)
+    sol = eigsolve(op, v, howmany, which, tol = T(1e-4), maxiter=150)
     eigenvals = T.(real.(sol[1]))
     eigen_vects = [T.(real.(e)) for e in sol[2]]
 

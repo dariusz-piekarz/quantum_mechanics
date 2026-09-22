@@ -4,17 +4,17 @@ using LinearAlgebra
 # This is a numerical approximation of the hydrogen atom problem, not the exact
 # analytic solution.
 
-T = Float32
+T = Float64
 L = T(12.0)
 h = T(0.2)
 x = range((-L + h/2), (L - h/2), step=h)
-grid = GridMatrix(x, x, x)
+ @time grid =GridMatrix(x, x, x)
 
 # Hydrogen nucleus at the origin, with one electron charge.
-V = CoulombPotential(-one(T), [one(T)], zeros(T, 1, 3))
-H = hamiltonian(V, grid, Val(:central), T)
+@time V = CoulombPotential(-one(T), [one(T)], zeros(T, 1, 3))
+@time H = hamiltonian(V, grid, Val(:central), T)
 
-vals, vecs = eigen_solver(H, T; howmany = 2, which = :SR)
+@time vals, vecs = eigen_solver(H, T; howmany = 2, which = :SR)
 vals_sorted = sort(real.(vals))
 
 for i in eachindex(vals)
