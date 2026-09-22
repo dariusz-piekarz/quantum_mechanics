@@ -101,6 +101,12 @@ include("symbolic_operators/kinetic_operator.jl")
 include("symbolic_operators/hamiltonian.jl")
 
 # ============================================================
+# grid matrix for the numerical solver
+# ============================================================
+
+include("numerical_solver/grid_matrix.jl")
+
+# ============================================================
 # discretized laplacian
 # ============================================================
 
@@ -179,10 +185,7 @@ export T̂
 
 export Hamiltonian
 
-export Grid
 export GridMatrix
-export grid_step
-export grid_size
 export raw_laplacian_1d
 export laplacian_1d
 export kinetic_operator
