@@ -5,16 +5,14 @@ using SparseArrays
 
 function kinetic_operator(
     n::Integer,
-    cut_type::Val,
     h::T,
     ::Type{T})::SparseMatrixCSC{T} where T <: Real
-    return -one(T) / T(2) * laplacian(n, cut_type, h, T, 3)
+    return laplacian(n, h, T, 3, -one(T) / T(2))
 end
 
 
 function kinetic_operator(
     grid::GridMatrix{T},
-    cut_type::Val,
     ::Type{T})::SparseMatrixCSC{T} where T <: Real
     n = round(Int, cbrt(size(grid.grid, 1)))
 
@@ -22,7 +20,7 @@ function kinetic_operator(
         throw(DimensionMismatch("GridMatrix must represent a cubic grid for the 3D discretized Laplacian."))
     end
 
-    return -one(T) / T(2) * laplacian(n, cut_type, grid.grid[2,1] - grid.grid[1,1], T, 3)
+    return laplacian(n, grid.grid[2,1] - grid.grid[1,1], T, 3, -one(T) / T(2))
 end
 
 
@@ -57,9 +55,8 @@ end
 function hamiltonian(
     V::AbstractPotential,
     grid::GridMatrix{T},
-    cut_type::Union{Val{:forward}, Val{:backward}, Val{:central}},
     ::Type{T}
 )::SparseMatrixCSC{T} where T <: Real
 
-    return kinetic_operator(grid, cut_type, T) + potential_operator(V)(grid, T)
+    return kinetic_operator(grid, T) + potential_operator(V)(grid, T)
 end

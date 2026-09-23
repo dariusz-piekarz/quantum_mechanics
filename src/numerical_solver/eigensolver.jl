@@ -1,6 +1,5 @@
 using QuantumMechanics
 
-using Symbolics 
 using SparseArrays
 using KrylovKit
 
@@ -9,18 +8,12 @@ function eigen_solver(op::AbstractArray{T}, ::Type{T}; howmany::Int = min(10, si
     dim = size(op, 1)
     dim <= 0 && throw(DimensionMismatch("Hamiltonian dimension must be positive."))
 
-    max_howmany = min(30, dim)
-    if howmany > max_howmany
-        @warn "Requested howmany=$howmany exceeds the stable KrylovKit limit for this matrix; reducing to $max_howmany."
-        howmany = max_howmany
-    end
-
     howmany = min(max(1, howmany), dim)
     v = Vector{T}(undef, dim)
     fill!(v, zero(T))
     v[1] = one(T)
 
-    sol = eigsolve(op, v, howmany, which, tol = T(1e-4), maxiter=150)
+    sol = eigsolve(op, v, howmany, which, tol = T(1e-4), maxiter=150, krylovdim=max(30, 2howmany + 1), ishermitian=true, issymmetric=true)
     eigenvals = T.(real.(sol[1]))
     eigen_vects = [T.(real.(e)) for e in sol[2]]
 

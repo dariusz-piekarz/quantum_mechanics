@@ -21,11 +21,14 @@ function GridMatrix(x::AbstractRange{T}, y::AbstractRange{T}, z::AbstractRange{T
         throw(DimensionMismatch("Grid must use the same spatial step in every dimension to match the Laplacian discretization."))
     end
 
-    grid = transpose([
-                vec([i for i in x, j in y, k in z])';
-                vec([j for i in x, j in y, k in z])';
-                vec([k for i in x, j in y, k in z])'
-                    ])
+    nx, ny, nz = length(x), length(y), length(z)
+    grid = Matrix{T}(undef, nx * ny * nz, 3)
+    idx = 1
+    @inbounds for k in z, j in y, i in x
+        grid[idx, 1] = i; grid[idx, 2] = j; grid[idx, 3] = k
+        idx += 1
+    end
+    
     return GridMatrix{T}(grid)
 end
 

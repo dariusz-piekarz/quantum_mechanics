@@ -19,7 +19,16 @@ function to_function(expression, variables)
     in_place_fn = let expr = expression, vars = vars
         function scalar!(out, args...)
             values = Dict(zip(vars, args))
-            out[] = _evaluate_numeric(expr, values)
+            result = _evaluate_numeric(expr, values)
+
+            if result isa AbstractArray
+                copyto!(out, vec(result))
+            elseif !isempty(out)
+                out .= result
+            else
+                out[] = result
+            end
+
             return out
         end
     end
