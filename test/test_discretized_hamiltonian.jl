@@ -29,9 +29,9 @@ end
     gm = GridMatrix(x, x, x)
     V = HarmonicPotential(1.0)
 
-    K = kinetic_operator(gm, Val(:central), T)
+    K = kinetic_operator(gm, T)
     P = potential_operator(V)(gm, T)
-    H = hamiltonian(V, gm, Val(:central), T)
+    H = hamiltonian(V, gm, T)
 
     @test K isa SparseMatrixCSC{T}
     @test P isa SparseMatrixCSC{T}
@@ -59,7 +59,7 @@ end
     ]
 
     for (name, V) in potentials
-        H = hamiltonian(V, grid, Val(:central), T)
+        H = hamiltonian(V, grid, T)
         eigvals, eigvecs = eigen_solver(H, T)
 
         @test length(eigvals) == length(eigvecs)
@@ -80,7 +80,7 @@ end
     x_axis = range(0.5, step = 0.5, length = 3)
     grid = GridMatrix(x_axis, x_axis, x_axis)
     V = CoulombPotential(-one(T), [one(T)], zeros(T, 1, 3))
-    H = hamiltonian(V, grid, Val(:central), T)
+    H = hamiltonian(V, grid, T)
 
     eigvals, eigvecs = eigen_solver(H, T)
     sorted_vals = sort(real.(eigvals))
@@ -116,7 +116,7 @@ end
 
     for (name, V) in potentials
         H_sym = Hamiltonian(V, K, ψ)
-        H_num = hamiltonian(V, grid, Val(:central), T)
+        H_num = hamiltonian(V, grid, T)
 
         H_sym_values = Vector{T}(undef, size(grid.grid, 1))
         evaluate!(ψ, grid.grid, H_sym_values)

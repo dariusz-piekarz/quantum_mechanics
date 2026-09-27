@@ -1,0 +1,39 @@
+using QuantumMechanics
+using LinearAlgebra
+
+# ============================================================
+# Eigensolver of the time-independent Schrödinger equation 
+#for the hydrogen atom using a discretized Hamiltonian.
+# ============================================================
+
+
+println("\n--- Hydrogen ground-state example using the discretized Hamiltonian on a GridMatrix ---")
+T = Float32
+L = T(10.0)
+h = T(0.3)
+x = range((-L + h/2), (L - h/2), step=h)
+@time grid = GridMatrix(x, x, x)
+
+# Hydrogen nucleus at the origin, with one electron charge.
+@time V = CoulombPotential(-one(T), [one(T)], zeros(T, 1, 3))
+@time H = hamiltonian(V, grid, T)
+
+@time vals, vecs = eigen_solver(H, T; howmany = 2, which = :SR)
+vals_sorted = sort(vals)
+
+for i in eachindex(vals)
+    λ = vals[i]
+    ψ = vecs[i]
+
+    residual = norm(H * ψ - λ * ψ)
+
+    println("λ[$i] = $λ")
+    println("residual[$i] = $residual")
+end
+
+println("Hydrogen discretized spectrum:")
+@show vals_sorted
+println("Approximate ground-state energy:")
+@show vals_sorted[1]
+println("Corresponding eigenvector length:")
+@show length(vecs[1])

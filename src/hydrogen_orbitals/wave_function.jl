@@ -69,7 +69,7 @@ function wave_function(
     θ::Union{Num,Number},
     φ::Union{Num,Number},
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
-)::Union{Num,Number}
+)
 
     facts = resolve_factorials(factorials, max(2l, n+l))
     R_nl = radial_function(n, l, r, facts)

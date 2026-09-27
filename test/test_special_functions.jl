@@ -298,6 +298,11 @@ end
     @test size(Y) == (length(θgrid), length(φgrid))
     @test all(isfinite, Y)
 
+    # Symbolic regression: should construct without Num/Complex conversion errors
+    @variables θ_sym φ_sym
+    Y_sym = spherical_harmonic(1, 1, θ_sym, φ_sym)
+    @test Y_sym isa Any
+
     # Invalid quantum numbers
     @test_throws ArgumentError spherical_harmonic(-1, 0, θ, φ)
     @test_throws ArgumentError spherical_harmonic(2, 3, θ, φ)

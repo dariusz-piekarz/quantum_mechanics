@@ -76,9 +76,12 @@ end
     P(m, φ)
 
 Return the azimuthal phase factor `exp(i*m*φ)` for the value in `φ`.
+
+For symbolic inputs, the output is a complex-valued expression, so it must be
+allowed to be `Complex{Num}` rather than a plain `Num`.
 """
-function P(m::Integer, φ::Num)::Num
-    return exp(im * m * φ)
+function P(m::Integer, φ::Num)
+    return exp(1im * m * φ)
 end
 
 
@@ -137,7 +140,7 @@ function spherical_harmonic(
     θ::Num,
     φ::Num,
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing,
-)::Num
+)
 
     l < 0 && throw(ArgumentError("l must be non-negative"))
     abs(m) > l && throw(ArgumentError("|m| must be <= l"))
