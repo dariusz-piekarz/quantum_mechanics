@@ -27,16 +27,73 @@ using QuantumMechanics
     @test size(kinetic_operator(shifted, Float64)) == (27, 27)
 
     @test_throws DimensionMismatch GridMatrix(range(0.0, step = 0.1, length = 1), y, z)
-    @test_throws DimensionMismatch GridMatrix(x, range(0.0, step = 0.2, length = 3), z)
+    different_steps = GridMatrix(x, range(0.0, step = 0.2, length = 3), z)
+    @test size(kinetic_operator(different_steps, T)) == (27, 27)
     @test_throws DimensionMismatch GridMatrix{Float64}(ones(8, 2))
 
-    # 2 × 4 × 8 has 64 points, but is not the 4 × 4 × 4 grid assumed by the stencil.
+    # The point count alone cannot reveal the axis dimensions.
     rectangular = GridMatrix(
         range(0.0, step = 0.5, length = 2),
         range(0.0, step = 0.5, length = 4),
         range(0.0, step = 0.5, length = 8),
     )
-    @test_throws DimensionMismatch kinetic_operator(rectangular, Float64)
+    @test size(kinetic_operator(rectangular, Float64)) == (64, 64)
+
+    bounded = GridMatrix(0.0, 1.0, 0.4)
+    @test size(bounded.grid) == (27, 3)
+    @test bounded.grid[end, :] ≈ [0.8, 0.8, 0.8]
+    @test all(bounded.grid .<= 1.0)
+    @test GridMatrix(0.0, 0.3, 0.1).grid[end, 1] ≈ 0.3
+    @test GridMatrix(0, 2, 1) isa GridMatrix{Float64}
+
+    anisotropic = GridMatrix(0.0, 0.5, 0.0, 0.5, 0.0, 1.0, 0.5, 0.25, 1.0)
+    @test size(anisotropic.grid) == (12, 3)
+    K = kinetic_operator(anisotropic, T)
+    @test K[1, 1] ≈ 21.0
+    @test K[1, 2] ≈ -2.0  # x neighbor
+    @test K[1, 3] ≈ -8.0  # y neighbor
+    @test K[1, 7] ≈ -0.5  # z neighbor
+    @test K == transpose(K)
+
+    irregular = GridMatrix{Float64}(copy(anisotropic.grid))
+    irregular.grid[5, 2] += 0.01
+    @test_throws DimensionMismatch kinetic_operator(irregular, T)
+
+    @test_throws DimensionMismatch GridMatrix(0.0, 0.1, 0.2)
+    @test_throws DimensionMismatch GridMatrix(0.0, 1.0, 0.0)
+    @test_throws ArgumentError GridMatrix(0.0, 1.0, Inf)
+end
+
+
+@testset "free-particle energy converges as grid spacing decreases" begin
+    # The sampled points are strictly inside the fixed Dirichlet box [0, L].
+    # The zero-valued ghost points lie exactly at 0 and L on every axis.
+    L = 4.0
+    exact_energy = 3π^2 / (2L^2)
+    errors = Float64[]
+    for n in 2:5
+        h = L / (n + 1)
+        grid = GridMatrix(range(h; step=h, length=n))
+        energy = first(eigen_solver(kinetic_operator(grid, Float64), Float64; howmany=1)[1])
+        push!(errors, abs(energy - exact_energy))
+    end
+    @test all(diff(errors) .< 0)
+    @test last(errors) < first(errors) / 3
+
+    # Rectangular boxes retain fixed boundaries while each axis has its own h.
+    lengths = (4.0, 5.0, 6.0)
+    exact_rectangular = π^2 / 2 * sum(inv(Li^2) for Li in lengths)
+    rectangular_errors = Float64[]
+    for dims in ((2, 3, 2), (3, 4, 3))
+        axes = ntuple(3) do i
+            h = lengths[i] / (dims[i] + 1)
+            range(h; step=h, length=dims[i])
+        end
+        grid = GridMatrix(axes...)
+        energy = first(eigen_solver(kinetic_operator(grid, Float64), Float64; howmany=1)[1])
+        push!(rectangular_errors, abs(energy - exact_rectangular))
+    end
+    @test rectangular_errors[2] < rectangular_errors[1]
 end
 
 

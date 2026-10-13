@@ -11,33 +11,67 @@ function kinetic_operator(
 end
 
 
-function kinetic_operator(
-    grid::GridMatrix{T},
-    ::Type{T})::SparseMatrixCSC{T} where T <: Real
-    n = round(Int, cbrt(size(grid.grid, 1)))
-
-    n >= 2 && n^3 == size(grid.grid, 1) ||
-        throw(DimensionMismatch("GridMatrix must represent a cubic grid with at least two points per axis."))
-
+function _grid_geometry(grid::GridMatrix{T}) where T <: Real
     coords = grid.grid
-    x0, y0, z0 = coords[1, 1], coords[1, 2], coords[1, 3]
-    h = coords[2, 1] - x0
-    (iszero(h) || !isfinite(h)) && throw(ArgumentError("Grid spacing must be finite and nonzero."))
+    npoints = size(coords, 1)
+    npoints >= 8 || throw(DimensionMismatch("Grid needs at least two points per axis."))
 
-    # The Kronecker stencil assumes x varies fastest, then y, then z, with
-    # equal spacing along all three axes. Checking only the total point count
-    # would silently accept e.g. a 2 × 4 × 8 grid as a 4 × 4 × 4 grid.
-    tol = 8n * maximum(eps(float(v)) for v in (x0, y0, z0, h))
-    @inbounds for k in 1:n, j in 1:n, i in 1:n
-        idx = i + n * (j - 1 + n * (k - 1))
-        if !(isapprox(coords[idx, 1] - x0, (i - 1) * h; atol=tol, rtol=0) &&
-             isapprox(coords[idx, 2] - y0, (j - 1) * h; atol=tol, rtol=0) &&
-             isapprox(coords[idx, 3] - z0, (k - 1) * h; atol=tol, rtol=0))
-            throw(DimensionMismatch("GridMatrix must be a regular cubic grid with equal spacing in x, y, z and x varying fastest."))
+    x0, y0, z0 = coords[1, 1], coords[1, 2], coords[1, 3]
+    all(isfinite, (x0, y0, z0)) ||
+        throw(ArgumentError("Grid coordinates must be finite."))
+
+    # Find the first y and z transitions in the flattened x-fastest layout.
+    nx = 1
+    while nx < npoints && coords[nx + 1, 2] == y0 && coords[nx + 1, 3] == z0
+        nx += 1
+    end
+    nxy = 1
+    while nxy < npoints && coords[nxy + 1, 3] == z0
+        nxy += 1
+    end
+    nx < npoints && nxy < npoints && nxy % nx == 0 && npoints % nxy == 0 ||
+        throw(DimensionMismatch("Grid must be a regular Cartesian product with x varying fastest."))
+
+    ny, nz = nxy ÷ nx, npoints ÷ nxy
+    all(n -> n >= 2, (nx, ny, nz)) ||
+        throw(DimensionMismatch("Grid needs at least two points per axis."))
+
+    hx = coords[2, 1] - x0
+    hy = coords[nx + 1, 2] - y0
+    hz = coords[nxy + 1, 3] - z0
+    steps = (hx, hy, hz)
+    all(h -> isfinite(h) && !iszero(h), steps) ||
+        throw(ArgumentError("Grid spacing must be finite and nonzero on every axis."))
+
+    origins = (x0, y0, z0)
+    dims = (nx, ny, nz)
+    tolerances = ntuple(3) do axis
+        origin, h, n = origins[axis], steps[axis], dims[axis]
+        extent = origin + (n - 1) * h
+        scale = max(abs(origin), abs(extent), abs(h))
+        min(8n * eps(float(scale)), abs(h) / 4)
+    end
+
+    @inbounds for k in 1:nz, j in 1:ny, i in 1:nx
+        idx = i + nx * (j - 1 + ny * (k - 1))
+        if !(isapprox(coords[idx, 1], x0 + (i - 1) * hx; atol=tolerances[1], rtol=0) &&
+             isapprox(coords[idx, 2], y0 + (j - 1) * hy; atol=tolerances[2], rtol=0) &&
+             isapprox(coords[idx, 3], z0 + (k - 1) * hz; atol=tolerances[3], rtol=0))
+            throw(DimensionMismatch("Grid must be regular, with x varying fastest."))
         end
     end
 
-    return laplacian(n, h, T, 3, -one(T) / T(2))
+    return dims, steps
+end
+
+
+function kinetic_operator(
+    grid::GridMatrix{T},
+    ::Type{T})::SparseMatrixCSC{T} where T <: Real
+    T <: AbstractFloat || throw(ArgumentError("Grid coordinates must use a floating-point type for the kinetic operator."))
+    dims, steps = _grid_geometry(grid)
+
+    return laplacian(dims, steps, T, -one(T) / T(2))
 end
 
 

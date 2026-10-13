@@ -49,3 +49,24 @@ function laplacian(
 
     return lp
 end
+
+
+"""Three-dimensional Laplacian for an `(nx, ny, nz)` grid with axis steps `(hx, hy, hz)`."""
+function laplacian(
+    dims::NTuple{3,Int},
+    steps::NTuple{3,T},
+    ::Type{T},
+    constant::T = one(T),
+)::SparseMatrixCSC{T} where {T <: Real}
+    nx, ny, nz = dims
+    hx, hy, hz = steps
+    lx = laplacian_1d(nx, hx, T, constant)
+    ly = laplacian_1d(ny, hy, T, constant)
+    lz = laplacian_1d(nz, hz, T, constant)
+    ix = spdiagm(0 => ones(T, nx))
+    iy = spdiagm(0 => ones(T, ny))
+    iz = spdiagm(0 => ones(T, nz))
+
+    # Julia stores x as the fastest-varying coordinate.
+    return kron(iz, iy, lx) + kron(iz, ly, ix) + kron(lz, iy, ix)
+end
