@@ -159,13 +159,11 @@ $$
 
 Dla układu bez smearing i z powłoką zamkniętą można obliczać energię całkowitą także ze wzoru kontrolnego:
 
+$$ E_{\rm tot} = \sum_i f_i\varepsilon_i - E_H[\rho] + E_{\rm xc}[\rho] - \int \rho(\mathbf r)\,v_{\rm xc}(\mathbf r)\,d^3r + E_{nn}, 
 $$
-E_{\rm tot}=\sum_i f_i\varepsilon_i
-            -E_H[\rho]+E_{\rm xc}[\rho]
-            -\int\rho(\mathbf r)v_{\rm xc}(\mathbf r)\,d^3r
-            +E_{nn},
-\qquad
-E_{nn}=\sum_{A<B}\frac{Z_AZ_B}{|\mathbf R_A-\mathbf R_B|}.
+
+$$
+E_{nn} = \sum_{A\lt B} \frac{Z_A Z_B} {\lvert \mathbf R_A-\mathbf R_B\rvert}
 $$
 
 Porównać tę postać z sumą składników $T_s+E_{\rm ext}+E_H+E_{\rm xc}+E_{nn}$, aby wykryć błąd podwójnego liczenia.
