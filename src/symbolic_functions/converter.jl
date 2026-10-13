@@ -1,40 +1,49 @@
 using Symbolics
 
-function _evaluate_numeric(expr, values)
-    substituted = Symbolics.substitute(expr, values)
-    numeric_expr = Symbolics.toexpr(substituted)
-    return Base.eval(@__MODULE__, numeric_expr)
+function _check_arity(args, nvariables)
+    length(args) == nvariables ||
+        throw(ArgumentError("expected $nvariables arguments, got $(length(args))"))
 end
 
 function to_function(expression, variables)
     vars = Tuple(collect(variables))
+    nvariables = length(vars)
 
-    scalar_fn = let expr = expression, vars = vars
-        function scalar(args...)
-            length(args) == length(vars) || throw(ArgumentError("expected $(length(vars)) arguments, got $(length(args))"))
-            values = Dict(zip(vars, args))
-            return _evaluate_numeric(expr, values)
+    if expression isa AbstractArray
+        compiled, compiled! = Symbolics.build_function(
+            expression, vars...; expression=Val(false), skipzeros=false
+        )
+
+        scalar_fn = function (args...)
+            _check_arity(args, nvariables)
+            return compiled(args...)
         end
-    end
 
-    in_place_fn = let expr = expression, vars = vars
-        function scalar!(out, args...)
-            length(args) == length(vars) || throw(ArgumentError("expected $(length(vars)) arguments, got $(length(args))"))
-            values = Dict(zip(vars, args))
-            result = _evaluate_numeric(expr, values)
-
-            if result isa AbstractArray
-                copyto!(out, vec(result))
-            elseif !isempty(out)
-                out .= result
+        in_place_fn = function (out, args...)
+            _check_arity(args, nvariables)
+            if size(out) == size(expression)
+                compiled!(out, args...)
+            elseif length(out) == length(expression)
+                compiled!(reshape(out, size(expression)), args...)
             else
-                out[] = result
+                throw(DimensionMismatch("expected output size $(size(expression)), got $(size(out))"))
             end
-
             return out
         end
+
+        return scalar_fn, in_place_fn
     end
 
+    compiled = Symbolics.build_function(expression, vars...; expression=Val(false))
+    scalar_fn = function (args...)
+        _check_arity(args, nvariables)
+        return compiled(args...)
+    end
+    in_place_fn = function (out, args...)
+        _check_arity(args, nvariables)
+        out .= compiled(args...)
+        return out
+    end
     return scalar_fn, in_place_fn
 end
 

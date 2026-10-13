@@ -49,6 +49,38 @@ using QuantumMechanics
     end
 
     # ---------------------------------------------------------
+    # Compiled scalar and array evaluation
+    # ---------------------------------------------------------
+
+    @testset "compiled scalar and array evaluation" begin
+        scalar, scalar! = to_function(x + im*y, (x, y))
+        @test scalar(2.0, 3.0) == 2.0 + 3.0im
+        @test_throws ArgumentError scalar(2.0)
+        scalar_out = zeros(ComplexF64, 1)
+        @test scalar!(scalar_out, 2.0, 3.0) === scalar_out
+        @test only(scalar_out) == 2.0 + 3.0im
+
+        expr = [x + y 0; x*y x - y]
+        f = SymbolicFunction(expr, (x, y))
+        expected = [5.0 0.0; 6.0 -1.0]
+        @test f(2.0, 3.0) == expected
+
+        out = fill(NaN, 2, 2)
+        @test f.function_object!(out, 2.0, 3.0) === out
+        @test out == expected
+
+        flat_out = fill(NaN, 4)
+        @test f.function_object!(flat_out, 2.0, 3.0) === flat_out
+        @test reshape(flat_out, 2, 2) == expected
+
+        X = [2.0 3.0; 4.0 5.0]
+        batch_out = fill(NaN, 2, 2, 2)
+        @test evaluate!(f, X, batch_out) === batch_out
+        @test batch_out[:, :, 1] == expected
+        @test batch_out[:, :, 2] == [9.0 0.0; 20.0 -1.0]
+    end
+
+    # ---------------------------------------------------------
     # Single variable
     # ---------------------------------------------------------
 
