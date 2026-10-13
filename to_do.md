@@ -107,7 +107,7 @@ E_H[\rho]=\frac12\int\rho(\mathbf r)v_H(\mathbf r)\,d^3r
        \approx\frac12\sum_g\rho_g(v_H)_g\Delta V.
 $$
 
-Przykład testowy: dla $\rho(r)=(\alpha/\pi)^{3/2}e^{-\alpha r^2}$ i warunku izolowanego układu $v_H(r)=\operatorname{erf}(\sqrt{\alpha}\,r)/r$ dla $r>0$, a $v_H(0)=2\sqrt{\alpha/\pi}$. Błąd na brzegu pudełka należy analizować oddzielnie od błędu dyskretyzacji.
+Przykład testowy: dla $\rho(r)=(\alpha/\pi)^{3/2}e^{-\alpha r^2}$ i warunku izolowanego układu $v_H(r)=\text{erf}(\sqrt{\alpha}\,r)/r$ dla $r>0$, a $v_H(0)=2\sqrt{\alpha/\pi}$. Błąd na brzegu pudełka należy analizować oddzielnie od błędu dyskretyzacji.
 
 **Gotowe, gdy:** potencjał i energia testowej gęstości zbiegają do znanego wyniku, a błąd warunku brzegowego jest mierzony.
 
