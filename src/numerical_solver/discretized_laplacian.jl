@@ -8,6 +8,7 @@ function raw_laplacian_1d(
     constant::T = one(T)
 )::SparseMatrixCSC{T} where {T <: Real}
     n <= 0 && throw(DimensionMismatch("n cannot be less than 1!"))
+    (iszero(h) || !isfinite(h)) && throw(ArgumentError("Grid spacing h must be finite and nonzero."))
 
     rows = repeat(1:n, inner = [3])
     cols = rows + repeat(0:2, outer = [n])

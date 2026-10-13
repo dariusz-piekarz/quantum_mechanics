@@ -113,8 +113,9 @@ function spherical_harmonic(
     l < 0 && throw(ArgumentError("l must be non-negative"))
     abs(m) > l && throw(ArgumentError("|m| must be <= l"))
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
-    N_lm = N(l, m, facts)
-    P_lm = associated_legendre(l, m, cos(θ), factorials)
+    T = promote_type(typeof(float(real(θ))), typeof(float(real(φ))))
+    N_lm = N(l, m, facts; T=T)
+    P_lm = associated_legendre(l, m, cos(θ), facts)
     Y_lm = N_lm * P(m, φ) * P_lm
 
     return Y_lm
@@ -169,7 +170,10 @@ function spherical_harmonic(
 )
 
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
-    T = real(eltype(θ))                
+    T = promote_type(
+        typeof(float(real(zero(eltype(θ))))),
+        typeof(float(real(zero(eltype(φ))))),
+    )
     N_lm = N(l, m, facts; T=T)
     P_lm = associated_legendre(l, m, cos.(θ), facts)   # length(θ)
     phase = P(m, φ)                                      # length(φ)
@@ -192,7 +196,10 @@ function spherical_harmonic(
 )
 
     facts = resolve_factorials(factorials, max(2l, abs(m) + l))
-    T = real(eltype(θ))                
+    T = promote_type(
+        typeof(float(real(zero(eltype(θ))))),
+        typeof(float(real(zero(eltype(φ))))),
+    )
     N_lm = N(l, m, facts; T=T)
     P_lm = associated_legendre(l, m, cos.(θ), facts)   # length(θ)
     phase = P(m, φ)                                      # length(φ)

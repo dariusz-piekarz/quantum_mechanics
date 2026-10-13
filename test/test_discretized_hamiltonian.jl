@@ -18,8 +18,25 @@ using QuantumMechanics
     @test gm.grid[1, :] == [0.0, 0.0, 0.0]
     @test gm.grid[end, :] == [0.2, 0.2, 0.2]
 
+    shifted = GridMatrix(
+        x,
+        range(0.3, step = 0.1, length = 3),
+        range(1.0, step = 0.1, length = 3),
+    )
+    @test size(shifted.grid) == (27, 3)
+    @test size(kinetic_operator(shifted, Float64)) == (27, 27)
+
     @test_throws DimensionMismatch GridMatrix(range(0.0, step = 0.1, length = 1), y, z)
     @test_throws DimensionMismatch GridMatrix(x, range(0.0, step = 0.2, length = 3), z)
+    @test_throws DimensionMismatch GridMatrix{Float64}(ones(8, 2))
+
+    # 2 × 4 × 8 has 64 points, but is not the 4 × 4 × 4 grid assumed by the stencil.
+    rectangular = GridMatrix(
+        range(0.0, step = 0.5, length = 2),
+        range(0.0, step = 0.5, length = 4),
+        range(0.0, step = 0.5, length = 8),
+    )
+    @test_throws DimensionMismatch kinetic_operator(rectangular, Float64)
 end
 
 
@@ -42,6 +59,25 @@ end
     @test H[1, 1] ≈ 12.0
     @test H[2, 2] ≈ 12.125
     @test H[8, 8] ≈ 12.375
+end
+
+
+@testset "eigen_solver resolves low and degenerate eigenvalues" begin
+    A = spdiagm(0 => [3.0, 2.0, 1.0])
+    vals, vecs = eigen_solver(A, Float64; howmany=2)
+    @test sort(vals) ≈ [1.0, 2.0]
+    @test all(norm(A * vec - val * vec) < 1e-8 for (val, vec) in zip(vals, vecs))
+    high_vals, _ = eigen_solver(A, Float64; howmany=2, which=:LR)
+    @test high_vals ≈ [3.0, 2.0]
+
+    repeated = spdiagm(0 => [1.0, 1.0, 3.0])
+    repeated_vals, repeated_vecs = eigen_solver(repeated, Float64; howmany=2)
+    @test sort(repeated_vals) ≈ [1.0, 1.0]
+    @test length(repeated_vecs) == 2
+
+    @test_throws ArgumentError eigen_solver(A, Float64; howmany=0)
+    @test_throws DimensionMismatch eigen_solver(ones(2, 3), Float64)
+    @test_throws ArgumentError eigen_solver([1.0 2.0; 3.0 4.0], Float64)
 end
 
 
@@ -105,6 +141,7 @@ end
     x_axis = range(0.5, step = 0.5, length = 3)
     grid = GridMatrix(x_axis, x_axis, x_axis)
     ψ_values = ψ(grid.grid)
+    grid_shape = (length(x_axis), length(x_axis), length(x_axis))
 
     potentials = [
         ("V_e", V_e(T)),
@@ -118,17 +155,19 @@ end
         H_sym = Hamiltonian(V, K, ψ)
         H_num = hamiltonian(V, grid, T)
 
-        H_sym_values = Vector{T}(undef, size(grid.grid, 1))
-        evaluate!(ψ, grid.grid, H_sym_values)
+        H_sym_flat = Vector{T}(undef, size(grid.grid, 1))
+        evaluate!(H_sym, grid.grid, H_sym_flat)
 
         # The discrete finite-difference Laplacian is only expected to match the
         # symbolic operator on the interior of the grid. The boundary stencil is
         # a truncated approximation and therefore differs by construction.
-        H_num_values = reshape(H_num * vec(ψ_values), size(ψ_values))
+        H_num_values = reshape(H_num * ψ_values, grid_shape)
+        H_sym_values = reshape(H_sym_flat, grid_shape)
 
         H_num_interior = H_num_values[2:end-1, 2:end-1, 2:end-1]
         H_sym_interior = H_sym_values[2:end-1, 2:end-1, 2:end-1]
 
+        @test size(H_num_interior) == (1, 1, 1)
         @test H_num_interior ≈ H_sym_interior atol = 1e-10 rtol = 1e-10
     end
 end

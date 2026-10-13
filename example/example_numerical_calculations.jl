@@ -11,6 +11,7 @@ println("\n--- Numerical ---")
 n, l, m = 2, 1, 1
 x₀ = 0.2
 α₀ = 0.4
+r₀ = bohr_radius(Float64)
 
 println("P_$l($x₀) = ", legendre(l, x₀))
 
@@ -30,6 +31,6 @@ println(
 )
 
 println(
-    "ψ($n, $l, $m; 0.1, 0.34, 0.66) = ",
-    wave_function(n, l, m, 0.1, 0.34, 0.66)
+    "ψ($n, $l, $m; r = $r₀ m, θ = 0.34, φ = 0.66) = ",
+    wave_function(n, l, m, r₀, 0.34, 0.66)
 )

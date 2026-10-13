@@ -7,6 +7,7 @@ struct GridMatrix{T<:Real}
     grid::Matrix{T}
 
     function GridMatrix{T}(grid::AbstractMatrix{<:Real}) where {T <: Real}
+        size(grid, 2) == 3 || throw(DimensionMismatch("GridMatrix coordinates must have three columns (x, y, z)."))
         return new{T}(Matrix{T}(grid))
     end
 end
@@ -17,7 +18,12 @@ function GridMatrix(x::AbstractRange{T}, y::AbstractRange{T}, z::AbstractRange{T
         throw(DimensionMismatch("Grid dimensions must contain at least two points."))
     end
 
-    if x[2] - x[1] != y[2] - y[1] || y[2] - y[1] != z[2] - z[1]
+    # Subtracting the first two coordinates introduces different rounding
+    # errors when equally spaced axes have different starting values.
+    hx, hy, hz = step(x), step(y), step(z)
+    spacing_rtol = 8eps(float(one(T)))
+    if !isapprox(hx, hy; rtol=spacing_rtol, atol=0) ||
+       !isapprox(hy, hz; rtol=spacing_rtol, atol=0)
         throw(DimensionMismatch("Grid must use the same spatial step in every dimension to match the Laplacian discretization."))
     end
 

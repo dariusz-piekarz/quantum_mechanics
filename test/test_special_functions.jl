@@ -301,7 +301,8 @@ end
     # Symbolic regression: should construct without Num/Complex conversion errors
     @variables θ_sym φ_sym
     Y_sym = spherical_harmonic(1, 1, θ_sym, φ_sym)
-    @test Y_sym isa Any
+    Y_sym_fn = to_function(Y_sym, (θ_sym, φ_sym))[1]
+    @test Y_sym_fn(π / 3, π / 4) ≈ spherical_harmonic(1, 1, π / 3, π / 4)
 
     # Invalid quantum numbers
     @test_throws ArgumentError spherical_harmonic(-1, 0, θ, φ)

@@ -27,6 +27,21 @@ using QuantumMechanics
     end
 
 
+    @testset "Source geometry validation" begin
+        for T in (Float32, Float64)
+            @test_throws DimensionMismatch CoulombPotential{T}(
+                -one(T), [one(T)], zeros(T, 1, 2)
+            )
+            @test_throws DimensionMismatch CoulombPotential(
+                -one(T), [one(T), one(T)], zeros(T, 1, 3)
+            )
+        end
+
+        V = CoulombPotential(-1.0, [1.0], zeros(1, 3))
+        push!(V.source_charges, 1.0)
+        @test_throws BoundsError V(1.0, 0.0, 0.0)
+    end
+
     # ========================================================
     # Single source at origin
     #

@@ -218,20 +218,25 @@ function generalized_laguerre(
     n < 0 && throw(ArgumentError("n must be non-negative"))
     α < -1 && throw(ArgumentError("α must be >= -1"))
 
-    L0 = ones(eltype(x), size(x))
+    # Division in the recurrence can produce fractions even for integer input.
+    # Include α in the promoted type so the output buffer can hold every step.
+    T = typeof((one(eltype(x)) + zero(α)) / 1)
+    x_float = T.(x)
+    α_float = T(α)
+    L0 = ones(T, size(x_float))
 
     n == 0 && return L0
 
-    L1 = @. 1 + α - x
+    L1 = @. 1 + α_float - x_float
 
     n == 1 && return L1
 
     L_prev = L0
     L_curr = L1
-    buf = similar(x)
+    buf = similar(x_float)
 
     for k in 2:n
-        @. buf = ((2k - 1 + α - x) * L_curr - (k - 1 + α) * L_prev) / k
+        @. buf = ((2k - 1 + α_float - x_float) * L_curr - (k - 1 + α_float) * L_prev) / k
         L_prev, L_curr, buf = L_curr, buf, L_prev
     end
 

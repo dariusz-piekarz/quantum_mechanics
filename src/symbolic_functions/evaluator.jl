@@ -95,9 +95,11 @@ end
 
 function evaluate!(f::SymbolicFunction, X::AbstractMatrix, out::AbstractArray)
     npoints = size(X, 1)
-    @assert size(out, ndims(out)) == npoints
-
     nvariables = length(f.variables)
+    size(X, 2) == nvariables || throw(DimensionMismatch("expected $nvariables input columns, got $(size(X, 2))"))
+
+    expected_size = (size(f.expression)..., npoints)
+    size(out) == expected_size || throw(DimensionMismatch("expected output size $expected_size, got $(size(out))"))
 
     if ndims(out) == 1
         fn = f.function_object

@@ -40,13 +40,14 @@ end
 function divergence(f, variables)
     
     if _is_symbolic(variables)
-        @assert length(f) == length(variables)
+        length(f) == length(variables) || throw(DimensionMismatch("vector field and variables must have the same length"))
         
         return sum(D(variables[i])(f[i]) for i in eachindex(variables))
     end
 
     jacobian = ForwardDiff.jacobian(f, variables)
-    return sum(jacobian[i, i] for i in 1: length(jacobian[:, 1]))
+    size(jacobian, 1) == size(jacobian, 2) || throw(DimensionMismatch("vector field and variables must have the same length"))
+    return sum(jacobian[i, i] for i in axes(jacobian, 1))
 end
 
 
@@ -66,7 +67,7 @@ function laplacian(f, variables)
 
     hessian = ForwardDiff.hessian(f, variables)
 
-    return sum(hessian[i, i] for i in 1: length(hessian[:, 1]))
+    return sum(hessian[i, i] for i in axes(hessian, 1))
 end
 
 # SymbolicFunction

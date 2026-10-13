@@ -11,6 +11,7 @@ function to_function(expression, variables)
 
     scalar_fn = let expr = expression, vars = vars
         function scalar(args...)
+            length(args) == length(vars) || throw(ArgumentError("expected $(length(vars)) arguments, got $(length(args))"))
             values = Dict(zip(vars, args))
             return _evaluate_numeric(expr, values)
         end
@@ -18,6 +19,7 @@ function to_function(expression, variables)
 
     in_place_fn = let expr = expression, vars = vars
         function scalar!(out, args...)
+            length(args) == length(vars) || throw(ArgumentError("expected $(length(vars)) arguments, got $(length(args))"))
             values = Dict(zip(vars, args))
             result = _evaluate_numeric(expr, values)
 

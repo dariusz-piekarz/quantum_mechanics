@@ -95,8 +95,14 @@ function wave_function_cartesian_grid(
     ξ::AbstractVector;
     factorials::Union{Nothing,AbstractVector{<:Integer}}=nothing
 )
-    α₀ = bohr_radius(Float32)
-    ξ = collect(Float32, ξ)
+    input_type = eltype(ξ)
+    T = if input_type <: AbstractFloat && isconcretetype(input_type)
+        promote_type(Float32, input_type)
+    else
+        Float64
+    end
+    α₀ = bohr_radius(T)
+    ξ = collect(T, ξ)
 
     x = reshape(ξ, :, 1, 1)
     y = reshape(ξ, 1, :, 1)
@@ -104,9 +110,11 @@ function wave_function_cartesian_grid(
 
     R2 = @. x^2 + y^2 + z^2
     R = @. α₀ * sqrt(R2)
-    denom = @. sqrt(R2) + eps(Float32)
-    θ = @. ifelse(R2 == 0f0, 0f0, acos(clamp(z / denom, -1f0, 1f0)))
-    φ = @. ifelse(R2 == 0f0, 0f0, atan(y, x))
+    denom = sqrt.(R2)
+    replace!(denom, zero(T) => one(T))
+    zero_coord, one_coord = zero(T), one(T)
+    θ = @. ifelse(R2 == zero_coord, zero_coord, acos(clamp(z / denom, -one_coord, one_coord)))
+    φ = @. ifelse(R2 == zero_coord, zero_coord, atan(y, x))
     fact = resolve_factorials(factorials, max(2l, n+l))
 
     return wave_function(n, l, m, R, θ, φ, fact)

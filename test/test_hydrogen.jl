@@ -195,6 +195,21 @@ end
 end
 
 
+@testset "Cartesian grid precision and polar angle near the origin" begin
+    grid32 = Float32[0, 1e-7]
+    ψ32 = wave_function_cartesian_grid(2, 1, 0, grid32)
+    expected32 = wave_function(2, 1, 0, Float64(bohr_radius(Float32) * grid32[2]), 0.0, 0.0)
+    @test eltype(ψ32) == ComplexF32
+    @test isapprox(ψ32[1, 1, 2], expected32; rtol=1e-5)
+
+    grid64 = Float64[0, 1e-7]
+    ψ64 = wave_function_cartesian_grid(2, 1, 0, grid64)
+    expected64 = wave_function(2, 1, 0, bohr_radius(Float64) * grid64[2], 0.0, 0.0)
+    @test eltype(ψ64) == ComplexF64
+    @test isapprox(ψ64[1, 1, 2], expected64; rtol=1e-12)
+end
+
+
 @testset "radial_function: eltype stays Float32 for Float32 input" begin
     r = collect(range(0f0, 5f0, length=10))
     @test eltype(radial_function(2, 1, r)) == Float32

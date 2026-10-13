@@ -9,7 +9,18 @@ struct CoulombPotential{T} <: AbstractPotential
     charge::T
     source_charges::Vector{T}
     source_positions::Matrix{T}
+
+    function CoulombPotential{T}(charge, source_charges, source_positions) where {T}
+        size(source_positions, 2) == 3 ||
+            throw(DimensionMismatch("source_positions must have exactly three columns"))
+        size(source_positions, 1) == length(source_charges) ||
+            throw(DimensionMismatch("source_positions must have one row per source charge"))
+        return new{T}(charge, source_charges, source_positions)
+    end
 end
+
+CoulombPotential(charge::T, source_charges::Vector{T}, source_positions::Matrix{T}) where {T} =
+    CoulombPotential{T}(charge, source_charges, source_positions)
 
 
 struct HarmonicPotential{T} <: AbstractPotential
@@ -21,7 +32,7 @@ function (V::CoulombPotential)(x::T, y::T, z::T)::T where {T}
 
     result = zero(T)
 
-    @inbounds for A in eachindex(V.source_charges)
+    for A in eachindex(V.source_charges)
 
         dx = x - V.source_positions[A, 1]
         dy = y - V.source_positions[A, 2]
@@ -40,7 +51,7 @@ function (V::CoulombPotential{T})(x::Num, y::Num, z::Num)::Num where {T}
 
     result = Num(0)
 
-    @inbounds for A in eachindex(V.source_charges)
+    for A in eachindex(V.source_charges)
 
         dx = x - V.source_positions[A, 1]
         dy = y - V.source_positions[A, 2]

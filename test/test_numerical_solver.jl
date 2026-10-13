@@ -61,4 +61,6 @@ end
 
 @testset "raw_laplacian_1d - invalid n" begin
     @test_throws DimensionMismatch raw_laplacian_1d(0, 0.1, Float64)
+    @test_throws ArgumentError raw_laplacian_1d(3, 0.0, Float64)
+    @test_throws ArgumentError raw_laplacian_1d(3, Inf, Float64)
 end
