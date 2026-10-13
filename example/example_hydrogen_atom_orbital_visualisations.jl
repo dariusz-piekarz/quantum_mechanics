@@ -1,5 +1,5 @@
 using QuantumMechanics
-using Symbolics
+using GLMakie, Meshing, GeometryBasics, LaTeXStrings
 
 # ============================================================
 # Hydrogen atom

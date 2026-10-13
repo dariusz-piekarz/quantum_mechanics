@@ -1,6 +1,6 @@
 # QuantumMechanics.jl
 
-An experimental Julia package for quantum mechanics calculations. It includes special polynomials, spherical harmonics and hydrogen atom orbitals, symbolic operators, sparse discretizations of the Hamiltonian, and visualizations built with GLMakie.
+An experimental Julia package for quantum mechanics calculations. It includes special polynomials, spherical harmonics and hydrogen atom orbitals, symbolic operators, sparse discretizations of the Hamiltonian, and optional visualizations built with GLMakie.
 
 ## Getting started
 
@@ -18,12 +18,26 @@ julia --project=. example/example_symbolic_calculations.jl
 julia --project=. example/example_numerical_calculations.jl
 ```
 
-Scripts with `visualisations` in their names open graphical windows.
+The numerical examples and core tests do not require GLMakie or a display. Plotting lives in the optional `QuantumMechanicsMakieExt` extension. To run the graphical examples, instantiate the separate environment and select it:
+
+```sh
+julia --project=visualisations -e "using Pkg; Pkg.instantiate()"
+julia --project=visualisations example/example_visualisations.jl
+julia --project=visualisations example/example_hydrogen_atom_orbital_visualisations.jl
+```
+
+The graphical scripts load all four optional packages (`GLMakie`, `Meshing`, `GeometryBasics`, `LaTeXStrings`), which activates the extension. If using another environment, add and load those packages there before calling `plot_*` or `show_isosurface*`.
 
 ## Tests
 
 ```sh
 julia --project=. -e "using Pkg; Pkg.test()"
+```
+
+An optional plotting smoke test is available after instantiating `visualisations/`:
+
+```sh
+julia --project=visualisations visualisations/smoke_test.jl
 ```
 
 ## Units

@@ -1,0 +1,20 @@
+name = "QuantumMechanicsVisualisations"
+uuid = "a4c1474a-e793-414d-81d1-32969a849d61"
+version = "0.1.0"
+
+[deps]
+GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
+Meshing = "e6723b4c-ebff-59f1-b4b7-d97aa5274f73"
+QuantumMechanics = "f382d4ad-75f6-46f6-9cf5-457fcaf58e3e"
+
+[sources]
+QuantumMechanics = {path = ".."}
+
+[compat]
+julia = "1.12"
+GeometryBasics = "0.5"
+GLMakie = "0.13"
+LaTeXStrings = "1"
+Meshing = "0.7"

@@ -1,5 +1,6 @@
 # Julia
 *.ji
+visualisations/Manifest.toml
 *.cov
 *.jl.cov
 *.jl.*.cov

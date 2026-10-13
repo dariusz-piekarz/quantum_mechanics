@@ -1,25 +1,9 @@
 module QuantumMechanics
 
 using Symbolics
-using GLMakie
-using LaTeXStrings
-using Meshing
-using GeometryBasics
 using ForwardDiff
 using SparseArrays
 using KrylovKit
-
-# ============================================================
-# Source directory
-# ============================================================
-
-const SRC_DIR = @__DIR__
-const SPEC_FUNCT_DIR = joinpath(SRC_DIR, "special_functions")
-const HYDROGEN_ORB_DIR = joinpath(SRC_DIR, "hydrogen_orbitals")
-const VISUALISATION_DIR = joinpath(SRC_DIR, "visualisation")
-const SYMB_FUNCT_DIR = joinpath(SRC_DIR, "symbolic_functions")
-const SYMB_OP_DIR = joinpath(SRC_DIR, "symbolic_operators")
-const NUM_SOLV_DIR = joinpath(SRC_DIR, "numerical_solver")
 
 # ============================================================
 # Mathematical utilities
@@ -51,18 +35,6 @@ include("hydrogen_orbitals/radial_function.jl")
 # ============================================================
 
 include("hydrogen_orbitals/wave_function.jl")
-
-# ============================================================
-# Isosurfaces
-# ============================================================
-
-include("visualisation/isosurface.jl")
-
-# ============================================================
-# Plotting
-# ============================================================
-
-include("visualisation/plots.jl")
 
 # ============================================================
 # Converter symbolic functions <-> numeric functions
@@ -127,6 +99,21 @@ include("numerical_solver/eigensolver.jl")
 # ============================================================
 # Exports
 # ============================================================
+
+# Plotting methods are supplied by QuantumMechanicsMakieExt.
+_plotting_unavailable() = throw(ArgumentError(
+    "Plotting requires GLMakie, Meshing, GeometryBasics and LaTeXStrings. " *
+    "Install them in the active environment and load them before calling plot functions."
+))
+show_isosurface(args...; kwargs...) = _plotting_unavailable()
+show_isosurface!(args...; kwargs...) = _plotting_unavailable()
+plot_legendre(args...; kwargs...) = _plotting_unavailable()
+plot_associated_legendre(args...; kwargs...) = _plotting_unavailable()
+plot_spherical_harmonic(args...; kwargs...) = _plotting_unavailable()
+plot_laguerre(args...; kwargs...) = _plotting_unavailable()
+plot_generalized_laguerre(args...; kwargs...) = _plotting_unavailable()
+plot_probability_density(args...; kwargs...) = _plotting_unavailable()
+plot_orbital(args...; kwargs...) = _plotting_unavailable()
 
 export factorials_table
 export resolve_factorials

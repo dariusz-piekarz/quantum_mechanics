@@ -1,5 +1,7 @@
 using QuantumMechanics
-using Symbolics
+using GLMakie, Meshing, GeometryBasics, LaTeXStrings
+
+l, m = 3, 1
 
 # ============================================================
 # Visualization

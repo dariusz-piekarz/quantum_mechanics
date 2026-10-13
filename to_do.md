@@ -24,9 +24,9 @@ Preferowany mechanizm: rozszerzenie pakietu Julia (`ext/`, `[weakdeps]` i `[exte
 
 ### 0. Oddzielić rdzeń od grafiki
 
-- [ ] Usunąć `using GLMakie`, `Meshing`, `GeometryBasics` i `LaTeXStrings` z `src/QuantumMechanics.jl`; przenieść kod `src/visualisation/` do opcjonalnego rozszerzenia.
-- [ ] Przenieść te pakiety z obowiązkowych zależności do zależności opcjonalnych. Zachować możliwość uruchamiania testów rdzenia bez OpenGL i bez wyświetlacza.
-- [ ] Rozdzielić przykłady na obliczeniowe i graficzne; opisać, co trzeba doinstalować do wykresów.
+- [x] Usunąć `using GLMakie`, `Meshing`, `GeometryBasics` i `LaTeXStrings` z `src/QuantumMechanics.jl`; przenieść kod `src/visualisation/` do opcjonalnego rozszerzenia.
+- [x] Przenieść te pakiety z obowiązkowych zależności do zależności opcjonalnych. Zachować możliwość uruchamiania testów rdzenia bez OpenGL i bez wyświetlacza.
+- [x] Rozdzielić przykłady na obliczeniowe i graficzne; opisać, co trzeba doinstalować do wykresów.
 - [ ] Zapisać prosty kontrakt typów: `Grid3D`, `OrbitalSet`/`VolumetricField` i docelowo `SCFResult`. Rdzeń nie powinien zwracać obiektów Makie.
 
 **Gotowe, gdy:** `using QuantumMechanics` oraz testy solvera działają bez instalacji GLMakie, a osobny test graficzny nadal tworzy dotychczasowe wykresy.
