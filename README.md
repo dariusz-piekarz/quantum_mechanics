@@ -1,48 +1,52 @@
 # QuantumMechanics.jl
 
-Eksperymentalny pakiet Julia do obliczeń związanych z mechaniką kwantową. Zawiera wielomiany specjalne, harmoniki sferyczne i orbitale atomu wodoru, operatory symboliczne, rzadkie dyskretyzacje hamiltonianu oraz wizualizacje oparte na GLMakie.
+An experimental Julia package for quantum mechanics calculations. It includes special polynomials, spherical harmonics and hydrogen atom orbitals, symbolic operators, sparse discretizations of the Hamiltonian, and visualizations built with GLMakie.
 
-## Uruchomienie
+## Getting started
 
-Wymagana jest Julia 1.12. W katalogu repozytorium:
+Julia 1.12 is required. Run these commands from the repository root:
 
 ```sh
 julia --project=. -e "using Pkg; Pkg.instantiate()"
 julia --project=. -e "using QuantumMechanics; println(legendre(2, 0.5))"
 ```
 
-Przykłady znajdują się w katalogu `example/`. Na początek można uruchomić:
+Examples are in `example/`. These are good starting points:
 
 ```sh
 julia --project=. example/example_symbolic_calculations.jl
 julia --project=. example/example_numerical_calculations.jl
 ```
 
-Przykłady w `example/` z `visualisations` w nazwie otwierają okna graficzne.
+Scripts with `visualisations` in their names open graphical windows.
 
-## Testy
+## Tests
 
 ```sh
 julia --project=. -e "using Pkg; Pkg.test()"
 ```
 
-## Jednostki
+## Units
 
-`bohr_radius(Float64)` zwraca promień Bohra w metrach; `radial_function` i `wave_function` przyjmują odległość w metrach. `wave_function_cartesian_grid` przyjmuje wektor współrzędnych w wielokrotnościach promienia Bohra. Dyskretny hamiltonian ma postać `-½Δ + V` i nie wykonuje przeliczania jednostek. Przy użyciu potencjału Coulomba `V = -1/r` należy podawać współrzędne siatki w jednostkach atomowych, aby energie były w hartree.
+`bohr_radius(Float64)` returns the Bohr radius in meters; `radial_function` and `wave_function` take distances in meters. `wave_function_cartesian_grid` takes coordinates expressed as multiples of the Bohr radius. The discretized Hamiltonian has the form `-½Δ + V` and performs no unit conversion. For a Coulomb potential `V = -1/r`, supply grid coordinates in atomic units (bohr) to obtain energies in hartree.
 
-## Granice i kroki siatki numerycznej
+## Numerical grid bounds and spacing
 
-`GridMatrix(min, max, h)` tworzy siatkę sześcienną. `min` jest pierwszą próbką, a `max` górną granicą **pozycji próbek**: ostatnia próbka nigdy nie przekracza `max`. Jeżeli `(max-min)/h` nie jest całkowite, `max` nie należy do siatki. Przykładowo `GridMatrix(0.0, 1.0, 0.4)` ma na każdej osi punkty `0.0, 0.4, 0.8`. Każda oś musi zawierać co najmniej dwa punkty.
+`GridMatrix(min, max, h)` creates a cubic grid. `min` is the first sample, while `max` is an inclusive upper bound on **sample positions**: the last sample never exceeds `max`. If `(max-min)/h` is not an integer, `max` is not a grid point. For example, `GridMatrix(0.0, 1.0, 0.4)` gives `0.0, 0.4, 0.8` on each axis. Each axis must contain at least two points.
 
-Różne kroki i liczby punktów osi można podać jako `GridMatrix(x_range, y_range, z_range)` albo `GridMatrix(xmin, xmax, ymin, ymax, zmin, zmax, hx, hy, hz)`. W `grid.grid` kolumny oznaczają `x, y, z`, a `x` zmienia się najszybciej. Współrzędne, granice i kroki muszą mieć zgodne jednostki. Dla `hamiltonian` są to bohr, a otrzymane energie są w hartree, o ile również potencjał jest wyrażony w jednostkach atomowych.
+For different step sizes or point counts along the axes, use `GridMatrix(x_range, y_range, z_range)` or `GridMatrix(xmin, xmax, ymin, ymax, zmin, zmax, hx, hy, hz)`. The columns of `grid.grid` are `x, y, z`, with `x` varying fastest. Coordinates, bounds, and steps must use consistent units. For `hamiltonian`, coordinates should be in bohr; energies are then in hartree when the potential is also expressed in atomic units.
 
-Operator różnic skończonych zakłada zerową funkcję falową **o jeden krok poza skrajnymi próbkami** na każdej osi. Dla stałego fizycznego pudełka z warunkiem Dirichleta na `0` i `L` należy więc próbkować wnętrze: `h = L/(n+1)` i `axis = range(h; step=h, length=n)`. Przy zagęszczaniu siatki zmieniamy `n` i `h`, ale utrzymujemy te same fizyczne granice pudełka.
+The finite difference operator assumes a zero wave function **one step beyond the outermost samples** on each axis. To keep a physical box with Dirichlet boundaries at `0` and `L` fixed while refining the grid, sample its interior with `h = L/(n+1)` and `axis = range(h; step=h, length=n)`. Change `n` and `h` while keeping the physical box boundaries fixed.
 
-## Zakres API
+## API overview
 
-- Funkcje specjalne: `legendre`, `associated_legendre`, `laguerre`, `generalized_laguerre`, `spherical_harmonic`.
-- Wodór: `radial_function`, `wave_function`, `wave_function_cartesian_grid`.
-- Symbole i operatory: `SymbolicFunction`, `gradient`, `laplacian`, `KineticOperator`, `Hamiltonian`.
-- Obliczenia na siatce: `GridMatrix`, `hamiltonian`, `eigen_solver`.
+- Special functions: `legendre`, `associated_legendre`, `laguerre`, `generalized_laguerre`, `spherical_harmonic`.
+- Hydrogen atom: `radial_function`, `wave_function`, `wave_function_cartesian_grid`.
+- Symbolic functions and operators: `SymbolicFunction`, `gradient`, `laplacian`, `KineticOperator`, `Hamiltonian`.
+- Grid calculations: `GridMatrix`, `hamiltonian`, `eigen_solver`.
 
-Szczegóły wywołań pokazują skrypty w `example/` oraz testy w `test/`.
+The scripts in `example/` and the tests in `test/` demonstrate their usage.
+
+## Development roadmap
+
+The detailed solver and visualization roadmap is in [to_do.md](to_do.md) (written in Polish).
